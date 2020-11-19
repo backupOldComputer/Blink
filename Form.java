@@ -8,6 +8,7 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+
 /**此类处理界面及监听器内部类*/
 public class Form extends JFrame implements ActionListener {
     private final javax.swing.Timer hdp = new javax.swing.Timer( Tool.CLOCK_HDP , this);
@@ -44,7 +45,7 @@ public class Form extends JFrame implements ActionListener {
     }
     public Form(){
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setExtendedState(JFrame.MAXIMIZED_BOTH);   //5.0及之前版本是Frame.MAXIMIZED_BOTH，少了J
+        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
         this.setLayout(new BorderLayout());
         xml = Tool.readProp();
         sks = Tool.passwordDialog();
@@ -73,13 +74,6 @@ public class Form extends JFrame implements ActionListener {
                 int option = JOptionPane.showConfirmDialog(bi, "窗体将隐藏，完成后将得到弹窗通知",
                         "准备好文件了吗？", JOptionPane.YES_NO_OPTION);
                 if(option != JOptionPane.YES_OPTION) return;
-//                var dialog = new ProgressMonitor(Form.this, "wait", null, 0, 100);
-//                dialog.setProgress(50);//todo
-//                try {
-//                    Thread.sleep(2000);
-//                } catch (InterruptedException interruptedException) {
-//                    interruptedException.printStackTrace();
-//                }
                 Form.this.setVisible(false);
                 Tool.doImport(sks);
                 Form.this.setVisible(true);
@@ -107,21 +101,6 @@ public class Form extends JFrame implements ActionListener {
         });
         return be;
     }
-//    private JButton buttonHDP() {
-//        JButton bWest = new JButton();
-//        bWest.setText("本屏幕幻灯片放映");
-//        bWest.addMouseListener(new MouseAdapter() {
-//            @Override
-//            public void mouseClicked(MouseEvent e) {
-//                hdp.setDelay(Tool.CLOCK_HDP);
-//                if( ! scales.isEmpty())
-//                    hdp.start();
-//                else
-//                    JOptionPane.showMessageDialog(null, "警告：幻灯片队列为空");
-//            }
-//        });
-//        return bWest;
-//    }
     private JButton buttonSetClock() {
         JButton bc = new JButton("放映或者重设间隔");
         bc.addMouseListener(new MouseAdapter() {
@@ -202,6 +181,7 @@ public class Form extends JFrame implements ActionListener {
         private void decryptScalePut(ArrayList<File> pictures, int count) {
                 for (int i = 0; i < count; i++) {
                     File f = pictures.get(i);
+                    if(Tool.DEBUG)System.out.println("isDir()=="+f.isDirectory()+"\t"+f.getPath());
                     BufferedImage bImage = readImageIO(f);
                     if (bImage == null) {
                         int option = JOptionPane.showConfirmDialog(null,
@@ -210,7 +190,7 @@ public class Form extends JFrame implements ActionListener {
                         if (option == JOptionPane.NO_OPTION) System.exit(0xa55d);
                         continue;
                     }
-                    System.out.println("ready to put:" + f.getPath());
+                    System.out.println("ready to put:\t" + f.getPath());
                     putToQueue(bImage);
                     Tool.increaseProp(f, xml);//put后已读标记+1
                 }

@@ -8,6 +8,7 @@ import java.io.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.*;
+
 /**此类配置全局参数以及为UI层提供工具函数*/
 class Tool{
     public static final boolean DEBUG = true;

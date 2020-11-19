@@ -2,9 +2,8 @@ import java.io.*;
 import java.security.*;
 import javax.crypto.*;
 import javax.crypto.spec.*;
-/**
-此类处理加密流和解密流
-*/
+
+/**此类处理加密流和解密流*/
 public class BlockCipher {
     public static final int KEY_LENGTH = 128; //256的代价是轮数和破解理论可能性
     public static final int IO_BLOCK_SIZE = 1024 * 64; //经测试最佳IO块大小：64KB

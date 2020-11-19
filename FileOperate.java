@@ -42,6 +42,7 @@ public class FileOperate {
                 File[] m1 = file.listFiles();
                 if(m1==null) throw new AssertionError();
                 for (File value : m1) {
+                //todo:replaceLast
                     String dir = value.getPath().replaceFirst(mWAREHOUSE + SEP, cWAREHOUSE + SEP);
                     makeDirs(dir);
                     File[] m2 = value.listFiles();

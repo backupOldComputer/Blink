@@ -25,7 +25,7 @@ public class FileOperate {
     public static SecretKey password2Key(String pw){return BlockCipher.bytes2SecretKey(BlockCipher.hashString(pw));}
     private static void makeDirs(String path) {
         File dir = new File(path);
-        System.out.println("正在入库："+dir);
+        System.out.println("正在创建："+dir);
         if( ! dir.exists()){
             boolean success = dir.mkdirs();
             if( ! success) throw new AssertionError();
@@ -42,7 +42,7 @@ public class FileOperate {
                 File[] m1 = file.listFiles();
                 if(m1==null) throw new AssertionError();
                 for (File value : m1) {
-                //todo:replaceLast
+//                    int start = value.getPath().indexof(mWAREHOUSE + SEP, mRoot.size());
                     String dir = value.getPath().replaceFirst(mWAREHOUSE + SEP, cWAREHOUSE + SEP);
                     makeDirs(dir);
                     File[] m2 = value.listFiles();

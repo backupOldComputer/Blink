@@ -1,3 +1,5 @@
+package src;
+
 import javax.crypto.*;
 import javax.imageio.*;
 import javax.swing.*;
@@ -11,11 +13,11 @@ import java.util.*;
 
 /**此类配置全局参数以及为UI层提供工具函数*/
 class Tool{
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
     public static final int CLOCK_HDP = DEBUG ? 500 : 4000;
     public static final int QUEUE_SIZE = 3;
     public static final int SCALE_HINTS = DEBUG ? Image.SCALE_FAST : Image.SCALE_SMOOTH;
-    public static final int MY_PANEL_HEIGHT = FileOperate.IS_WIN ? 705 : 695;
+    public static final int MY_PANEL_HEIGHT = FileOperate.IS_WIN ? 705 : 700;
     public static final int MIN_PASSWORD_LENGTH = DEBUG ? 0 : 12;
     public static final String DEFAULT_PASSWORD = DEBUG ? "p" : "";
     public static final String PATH_PROPERTIES = DEBUG ? "TEST.XML" : "HasRead.xml";

@@ -1,3 +1,5 @@
+package src;
+
 import javax.crypto.*;
 import javax.imageio.*;
 import javax.swing.*;

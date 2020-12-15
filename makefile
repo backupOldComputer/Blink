@@ -8,10 +8,10 @@ test:
 	ls pWarehouse/S/*/*.png | head
 
 c_video: src/MS2Frame.class 
-	java src.MS2Frame pWarehouse/S/*/*.bmp | '/usr/local/ffmpeg/bin/ffmpeg' -r 16 -i pipe:0 -y -b:v 400K out.mp4
+	java src.MS2Frame pWarehouse/S/*/*.bmp | '/usr/local/ffmpeg/bin/ffmpeg' -r 8 -i pipe:0 -y -b:v 100K out.mp4
 	
 r_video: src/MS2Frame.class 
-	java src.MS2Frame pWarehouse/S/*/*.png | '/usr/local/ffmpeg/bin/ffmpeg' -r 16 -i pipe:0 -y -b:v 400K out.mp4
+	java src.MS2Frame pWarehouse/S/*/*.png | '/usr/local/ffmpeg/bin/ffmpeg' -r 8 -i pipe:0 -y -b:v 100K out.mp4
 	
 src/MS2Frame.class: src/MS2Frame.java
 	javac src/MS2Frame.java

@@ -5,6 +5,7 @@ import java.awt.image.*;
 import javax.imageio.*;
 
 public class MS2Frame{
+    public static final OutputStream sout = System.out;
     public static final String FRAME_FORMAT = "PNG"; //我的ffmpeg不支持tiff
     public static final int HALF_HDP = 8;
     public static String s2m(String path){
@@ -30,8 +31,37 @@ public class MS2Frame{
 			ImageIO.write(frames[k], FRAME_FORMAT, System.out);
 		}
     }
+    /** 写入第frameIndex帧到第(2*HALF_HDP-frameIndex)帧
+    */
+    public static void recurWrite(BufferedImage m, final BufferedImage s, int frameIndex) throws Exception {
+	if(frameIndex < 0 || frameIndex >= HALF_HDP)
+		throw new AssertionError();
+	//写入第frameIndex帧
+	ImageIO.write(m, FRAME_FORMAT, sout);
+	boolean moreBrighter = true;
+	nextFrame(m,s,moreBrighter);
+	//写入中间帧
+	++frameIndex;
+	if(frameIndex == HALF_HDP) return; //frameIndex自增到了中间就不再展开新递归
+	recurWrite(m,s,frameIndex);
+	//写入第(2*HALF_HDP-frameIndex)帧
+	ImageIO.write(m, FRAME_FORMAT, sout);
+	moreBrighter = false;
+	nextFrame(m,s,moreBrighter);
+    }
     public static BufferedImage cloneBufferedImage(final BufferedImage from){
 	return null;//TODO
+    }
+    public static void nextFrame(BufferedImage m, final BufferedImage s, final boolean moreBrighter){
+	for(int i=0; i<s.getWidth(); ++i){
+		for(int j=0; j<s.getHeight(); ++j){
+			if(s.getRGB(i,j) != Color.WHITE.getRGB())
+				continue;
+			Color source = new Color(m.getRGB(i,j), true);
+			Color dest = moreBrighter ? source.brighter() : source.darker();
+			m.setRGB(i,j,dest.getRGB());
+		}
+	}
     }
     public static void computeFrame(BufferedImage dest, final BufferedImage s, final int frameIndex){
 	for(int i=0; i<s.getWidth(); ++i){

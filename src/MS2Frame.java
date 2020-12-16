@@ -16,6 +16,19 @@ public class MS2Frame{
 	else
 		throw new AssertionError();
     }
+    public static void main(String[] sPaths) throws Exception {
+	for(int k=0;k< sPaths.length ;++k){
+		BufferedImage s = ImageIO.read(new FileInputStream(sPaths[k]));
+		BufferedImage m = ImageIO.read(new FileInputStream(pathTranslate(sPaths[k])));
+		pictureToFrames(m, s);
+	}
+    }
+    public static void pictureToFrames(BufferedImage m, BufferedImage s) throws Exception {
+	if( s.getWidth() > m.getWidth() || s.getHeight() > m.getHeight() )
+		throw new AssertionError();
+	int[][] step = sToStep(m,s);
+	recurWrite(m, step, 0); //用frameIndex=0启动递归写入
+    }
     public static int[][] sToStep(final BufferedImage m, final BufferedImage s){
 	int[][] step = new int[s.getWidth()][s.getHeight()];
 	for(int i=0; i<s.getWidth(); ++i){
@@ -31,21 +44,8 @@ public class MS2Frame{
 			step[i][j] = 0x10000*stepRed;
 		}
 	}
+//	if(DEBUG)ImageIO.write(s, FRAME_FORMAT, new FileOutputStream("step.png"));
 	return step;
-    }
-    public static void main(String[] sPaths) throws Exception {
-	for(int k=0;k< sPaths.length ;++k){
-		BufferedImage s = ImageIO.read(new FileInputStream(sPaths[k]));
-		BufferedImage m = ImageIO.read(new FileInputStream(pathTranslate(sPaths[k])));
-		if( s.getWidth() > m.getWidth() || s.getHeight() > m.getHeight() )
-			throw new AssertionError();
-		int[][] step = sToStep(m,s);
-//		if(DEBUG)ImageIO.write(s, FRAME_FORMAT, new FileOutputStream("step.png"));
-		pictureToFrames(m, step);
-	}
-    }
-    public static void pictureToFrames(BufferedImage m, final int[][] step) throws Exception {
-	recurWrite(m, step, 0); //用frameIndex=0启动递归写入
     }
     /** 写入第frameIndex帧到第(2*HALF_HDP-frameIndex-1)帧 */
     public static void recurWrite(BufferedImage m, final int[][] step, final int frameIndex) throws Exception {

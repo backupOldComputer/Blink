@@ -1,0 +1,8 @@
+*.mp4
+src/*.class
+audio/
+video/
+mWarehouse/
+cWarehouse/
+pWarehouse/
+

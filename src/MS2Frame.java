@@ -19,7 +19,8 @@ public class MS2Frame{
     }
     public static void main(String[] sPaths) throws Exception {
 	if(sPaths == null || sPaths.length == 0){
-		System.out.println(以指示选区的掩码图片的路经集作为参数，程序会自动去掉后缀以匹配原图片);
+		System.out.println("以指示选区的掩码图片的路经集作为参数，程序会自动去掉后缀以匹配原图片");
+		return;
 	}
 	for(int k=0;k< sPaths.length ;++k){
 		BufferedImage s = ImageIO.read(new FileInputStream(sPaths[k]));
@@ -42,7 +43,7 @@ public class MS2Frame{
 	}
 	for(int t=0;t<repeat;++t)	//TODO:写入优化
 		for(int f=0;f<frames.length;++f)
-			ImageIO.write(m, FRAME_FORMAT, SOUT);
+			ImageIO.write(frames[f], FRAME_FORMAT, SOUT);
     }
     public static int[][] sToStep(final BufferedImage m, final BufferedImage s){
 	int[][] step = new int[s.getWidth()][s.getHeight()];

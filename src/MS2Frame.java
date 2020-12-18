@@ -41,20 +41,19 @@ public class MS2Frame{
 		throw new AssertionError();
 	int[][] step = sToStep(m,s);
 	//递归写入
-	for(int t=0;t<repeat;++t)
-		recurWrite(m, step, 0); //用frameIndex=0启动递归写入
+//	for(int t=0;t<repeat;++t) recurWrite(m, step, 0); //用frameIndex=0启动递归写入
 	/*循环写入
+	*/
 	BufferedImage[] frames = new BufferedImage[HALF_HDP*2];
 	frames[0] = m;
 	frames[frames.length-1] = m;
 	for(int k=1;k< HALF_HDP ;k++){
-		frames[k] = nextFrame(imClone(m), step, 1);
+		frames[k] = nextFrame(imClone(frames[k-1]), step, 1);
 		frames[frames.length-k-1] = frames[k];
 	}
 	for(int t=0;t<repeat;++t)	//TODO:写入优化
 		for(int f=0;f<frames.length;++f)
 			ImageIO.write(frames[f], FRAME_FORMAT, sOut());
-	*/
     }
     public static int[][] sToStep(final BufferedImage m, final BufferedImage s){
 	int[][] step = new int[s.getWidth()][s.getHeight()];

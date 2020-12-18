@@ -5,10 +5,18 @@ import javax.imageio.*;
 
 public class MS2Frame{
     public static final boolean DEBUG = false;
-    public static final int repeat = 3;
-    public static final int HALF_HDP = DEBUG ? 4 : 12;
+    public static final int repeat = DEBUG ? 2 : 3;
+    public static final int HALF_HDP = DEBUG ? 6 : 12;
     public static final String FRAME_FORMAT = "PNG"; //我的ffmpeg不支持tiff
-    public static final OutputStream SOUT = System.out;	//new FileOutputStream();	//
+    
+    private static F_OUT_DEBUG = false;
+    private static F_OUT_PATH = "F_OUT_DEBUG";
+    private static F_OUT_SUFFIX = 0;
+    private static OutputStream sOut(){
+	if( ! F_OUT_DEBUG) return System.out;
+	new File(F_OUT_PATH).mkdir();
+	return new FileOutputStream(F_OUT_PATH+"/"+(++F_OUT_SUFFIX));
+    }
     public static String pathTranslate(String path) {
 	String result = path.substring(0, path.length() - 4 );
 	// path.replaceFirst("pWarehouse/S", "pWarehouse/M");
@@ -37,13 +45,12 @@ public class MS2Frame{
 	frames[0] = m;
 	frames[frames.length-1] = m;
 	for(int k=1;k< HALF_HDP ;k++){
-		frames[k] = imClone(m);
-        	nextFrame(frames[k], step, 1);
+		frames[k] = nextFrame(imClone(m), step, 1);
 		frames[frames.length-k-1] = frames[k];
 	}
 	for(int t=0;t<repeat;++t)	//TODO:写入优化
 		for(int f=0;f<frames.length;++f)
-			ImageIO.write(frames[f], FRAME_FORMAT, SOUT);
+			ImageIO.write(frames[f], FRAME_FORMAT, sOut());
     }
     public static int[][] sToStep(final BufferedImage m, final BufferedImage s){
 	int[][] step = new int[s.getWidth()][s.getHeight()];
@@ -53,11 +60,10 @@ public class MS2Frame{
 				step[i][j] = 0;
 				continue;
 			}//选区外为0，选区内为step值
-			int source = m.getRGB(i,j);
-			int red = (source&0xff0000)/0x10000;
+			int red = ( m.getRGB(i,j)/0x10000 ) & 0xff ;
 			int stepRed = (255 - red)/HALF_HDP;	//256做被减数有时会导致颜色抖动
-//			if(DEBUG)System.err.print(stepRed+"#");
 			step[i][j] = 0x10000*stepRed;
+//			if(DEBUG)System.err.print(stepRed+"#");
 		}
 	}
 //	if(DEBUG)ImageIO.write(s, FRAME_FORMAT, new FileOutputStream("step.png"));
@@ -69,18 +75,20 @@ public class MS2Frame{
 	if(frameIndex < 0 || frameIndex > HALF_HDP)
 		throw new AssertionError();
 	//写入第frameIndex帧
-	ImageIO.write(m, FRAME_FORMAT, SOUT);
+	ImageIO.write(m, FRAME_FORMAT, sOut());
 	nextFrame(m, step, 1);
 	//递归写入中间帧
 	recurWrite(m, step, 1+frameIndex);	//疑问：通过拷贝m并去掉后半程nextFrame的应该不会提高性能
 	//写入第(2*HALF_HDP-frameIndex-1)帧
-	ImageIO.write(m, FRAME_FORMAT, SOUT);
+	ImageIO.write(m, FRAME_FORMAT, sOut());
 	if(frameIndex != 0) nextFrame(m, step, -1);
     }
-    public static void nextFrame(BufferedImage m, final int[][] step, final int addOrSub){
+    /** 此方法会修改m */
+    public static BufferedImage nextFrame(BufferedImage m, final int[][] step, final int addOrSub){
 	for(int i=0; i<step.length; ++i)
 		for(int j=0; j<step[0].length; ++j)
 			m.setRGB( i, j, m.getRGB(i,j) + addOrSub * step[i][j] );
+	return m;
     }
     public static BufferedImage imClone(BufferedImage bimage){
 	BufferedImage bimage2 = new BufferedImage(bimage.getWidth(), bimage.getHeight(), bimage.getType());

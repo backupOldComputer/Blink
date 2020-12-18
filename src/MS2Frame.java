@@ -66,4 +66,9 @@ public class MS2Frame{
 		for(int j=0; j<step[0].length; ++j)
 			m.setRGB( i, j, m.getRGB(i,j) + addOrSub * step[i][j] );
     }
+    public static BufferedImage imClone(BufferedImage bimage){
+	BufferedImage bimage2 = new BufferedImage(bimage.getWidth(), bimage.getHeight(), bimage.getType());
+        bimage2.setData(bimage.getData());
+	return bimage2;
+    }
 }

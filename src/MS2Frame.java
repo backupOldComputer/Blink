@@ -5,6 +5,7 @@ import javax.imageio.*;
 
 public class MS2Frame{
     public static final boolean DEBUG = false;
+    public static final int repeat = 3;
     public static final int HALF_HDP = DEBUG ? 4 : 12;
     public static final String FRAME_FORMAT = "PNG"; //我的ffmpeg不支持tiff
     public static final OutputStream SOUT = System.out;	//new FileOutputStream();	//
@@ -17,6 +18,9 @@ public class MS2Frame{
 		throw new AssertionError();
     }
     public static void main(String[] sPaths) throws Exception {
+	if(sPaths == null || sPaths.length == 0){
+		System.out.println(以指示选区的掩码图片的路经集作为参数，程序会自动去掉后缀以匹配原图片);
+	}
 	for(int k=0;k< sPaths.length ;++k){
 		BufferedImage s = ImageIO.read(new FileInputStream(sPaths[k]));
 		BufferedImage m = ImageIO.read(new FileInputStream(pathTranslate(sPaths[k])));
@@ -27,7 +31,18 @@ public class MS2Frame{
 	if( s.getWidth() > m.getWidth() || s.getHeight() > m.getHeight() )
 		throw new AssertionError();
 	int[][] step = sToStep(m,s);
-	recurWrite(m, step, 0); //用frameIndex=0启动递归写入
+	//recurWrite(m, step, 0); //用frameIndex=0启动递归写入
+	BufferedImage[] frames = new BufferedImage[HALF_HDP*2];
+	frames[0] = m;
+	frames[frames.length-1] = m;
+	for(int k=1;k< HALF_HDP ;k++){
+		frames[k] = imClone(m);
+        	nextFrame(frames[k], step, 1);
+		frames[frames.length-k-1] = frames[k];
+	}
+	for(int t=0;t<repeat;++t)	//TODO:写入优化
+		for(int f=0;f<frames.length;++f)
+			ImageIO.write(m, FRAME_FORMAT, SOUT);
     }
     public static int[][] sToStep(final BufferedImage m, final BufferedImage s){
 	int[][] step = new int[s.getWidth()][s.getHeight()];

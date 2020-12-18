@@ -5,18 +5,19 @@ all: test
 	#echo 用 make frameclean 清除现有帧
 	#echo 用 make form 及必要的手动操作准备好 M 和 S
 	#echo 用 make r_video 或 make c_video 生成视频
+
 	
 test: src/MS2Frame.class
-	java src.MS2Frame pWarehouse/S/*/*.png | '/usr/local/ffmpeg/bin/ffmpeg' -r 6 -i pipe:0 -y -b:v 400K out.mp4
+	java src.MS2Frame pWarehouse/S/*/*.png | '/usr/local/ffmpeg/bin/ffmpeg' -r 6 -i pipe:0 -y -b:v 128K out.mp4
 
 sample: src/MS2Frame.class
 	java src.MS2Frame sample/S/*.png | '/usr/local/ffmpeg/bin/ffmpeg' -r 6 -i pipe:0 -y -b:v 128K out.mp4
 
 c_video: src/MS2Frame.class 
-	java src.MS2Frame pWarehouse/S/*/*.bmp | '/usr/local/ffmpeg/bin/ffmpeg' -r 8 -i pipe:0 -y -b:v 400K out.mp4
+	java src.MS2Frame pWarehouse/S/*/*.bmp | '/usr/local/ffmpeg/bin/ffmpeg' -r 8 -i pipe:0 -y out.mp4
 	
 r_video: src/MS2Frame.class 
-	java src.MS2Frame pWarehouse/S/*/*.png | '/usr/local/ffmpeg/bin/ffmpeg' -r 8 -i pipe:0 -y -b:v 400K out.mp4
+	java src.MS2Frame pWarehouse/S/*/*.png | '/usr/local/ffmpeg/bin/ffmpeg' -r 8 -i pipe:0 -y out.mp4
 	
 src/MS2Frame.class: src/MS2Frame.java
 	javac src/MS2Frame.java

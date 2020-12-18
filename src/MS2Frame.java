@@ -4,15 +4,15 @@ import java.awt.image.*;
 import javax.imageio.*;
 
 public class MS2Frame{
-    public static final boolean DEBUG = false;
+    public static final boolean DEBUG = true;
     public static final int repeat = DEBUG ? 2 : 3;
     public static final int HALF_HDP = DEBUG ? 6 : 12;
     public static final String FRAME_FORMAT = "PNG"; //我的ffmpeg不支持tiff
     
-    private static F_OUT_DEBUG = false;
-    private static F_OUT_PATH = "F_OUT_DEBUG";
-    private static F_OUT_SUFFIX = 0;
-    private static OutputStream sOut(){
+    private static boolean F_OUT_DEBUG = false;
+    private static String F_OUT_PATH = "F_OUT_DEBUG";
+    private static int F_OUT_SUFFIX = 0;
+    private static OutputStream sOut() throws FileNotFoundException {
 	if( ! F_OUT_DEBUG) return System.out;
 	new File(F_OUT_PATH).mkdir();
 	return new FileOutputStream(F_OUT_PATH+"/"+(++F_OUT_SUFFIX));
@@ -40,7 +40,10 @@ public class MS2Frame{
 	if( s.getWidth() > m.getWidth() || s.getHeight() > m.getHeight() )
 		throw new AssertionError();
 	int[][] step = sToStep(m,s);
-	//recurWrite(m, step, 0); //用frameIndex=0启动递归写入
+	//递归写入
+	for(int t=0;t<repeat;++t)
+		recurWrite(m, step, 0); //用frameIndex=0启动递归写入
+	/*循环写入
 	BufferedImage[] frames = new BufferedImage[HALF_HDP*2];
 	frames[0] = m;
 	frames[frames.length-1] = m;
@@ -51,6 +54,7 @@ public class MS2Frame{
 	for(int t=0;t<repeat;++t)	//TODO:写入优化
 		for(int f=0;f<frames.length;++f)
 			ImageIO.write(frames[f], FRAME_FORMAT, sOut());
+	*/
     }
     public static int[][] sToStep(final BufferedImage m, final BufferedImage s){
 	int[][] step = new int[s.getWidth()][s.getHeight()];
@@ -78,10 +82,10 @@ public class MS2Frame{
 	ImageIO.write(m, FRAME_FORMAT, sOut());
 	nextFrame(m, step, 1);
 	//递归写入中间帧
-	recurWrite(m, step, 1+frameIndex);	//疑问：通过拷贝m并去掉后半程nextFrame的应该不会提高性能
+	recurWrite(imClone(m), step, 1+frameIndex);
 	//写入第(2*HALF_HDP-frameIndex-1)帧
 	ImageIO.write(m, FRAME_FORMAT, sOut());
-	if(frameIndex != 0) nextFrame(m, step, -1);
+//	if(frameIndex != 0) nextFrame(m, step, -1);
     }
     /** 此方法会修改m */
     public static BufferedImage nextFrame(BufferedImage m, final int[][] step, final int addOrSub){

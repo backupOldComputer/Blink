@@ -65,6 +65,7 @@ public class MS2Frame{
 			}//选区外为0，选区内为step值
 			int red = ( m.getRGB(i,j)/0x10000 ) & 0xff ;
 			int stepRed = (255 - red)/HALF_HDP;	//256做被减数有时会导致颜色抖动
+			if(stepRed<1) stepRed = 0 - red/HALF_HDP;
 			step[i][j] = 0x10000*stepRed;
 //			if(DEBUG)System.err.print(stepRed+"#");
 		}
@@ -89,8 +90,9 @@ public class MS2Frame{
     /** 此方法会修改m */
     public static BufferedImage nextFrame(BufferedImage m, final int[][] step, final int addOrSub){
 	for(int i=0; i<step.length; ++i)
-		for(int j=0; j<step[0].length; ++j)
+		for(int j=0; j<step[0].length; ++j){
 			m.setRGB( i, j, m.getRGB(i,j) + addOrSub * step[i][j] );
+		}
 	return m;
     }
     public static BufferedImage imClone(BufferedImage bimage){

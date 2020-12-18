@@ -1,7 +1,9 @@
 *.mp4
+!sample/SampleOutput.mp4
 src/*.class
 audio/
 video/
+F_OUT_DEBUG/
 mWarehouse/
 cWarehouse/
 pWarehouse/

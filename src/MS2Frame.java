@@ -11,12 +11,16 @@ public class MS2Frame{
     public static final String FRAME_FORMAT = "PNG"; //我的ffmpeg不支持tiff
     
     private static boolean F_OUT_DEBUG = false;
-    private static String F_OUT_PATH = "F_OUT_DEBUG";
     private static int F_OUT_SUFFIX = 0;
-    private static OutputStream sOut() throws FileNotFoundException {
+    private static String F_OUT_PATH = "F_OUT_DEBUG";
+    private static OutputStream sOut() {
 	if( ! F_OUT_DEBUG) return System.out;
 	new File(F_OUT_PATH).mkdir();
-	return new FileOutputStream(F_OUT_PATH+"/"+(++F_OUT_SUFFIX));
+	try{
+		return new FileOutputStream(F_OUT_PATH+"/"+(++F_OUT_SUFFIX));
+	}catch(FileNotFoundException ex){
+		throw new AssertionError();
+	}
     }
     public static String pathTranslate(String path) {
 	String result = path.substring(0, path.length() - 4 );
@@ -26,9 +30,9 @@ public class MS2Frame{
 	else
 		throw new AssertionError();
     }
-    public static void main(String[] sPaths) throws Exception {
+    public static void main(String[] sPaths) throws IOException {
 	if(sPaths == null || sPaths.length == 0){
-		System.out.println("以指示选区的掩码图片的路经集作为参数，程序会自动去掉后缀以匹配原图片");
+		System.out.println("以指示选区的掩码图片的路经集作为参数执行此程序，程序会自动去掉后缀以匹配原图片");
 		return;
 	}
 	for(int k=0;k< sPaths.length ;++k){
@@ -37,7 +41,7 @@ public class MS2Frame{
 		pictureToFrames(m, s);
 	}
     }
-    public static void pictureToFrames(BufferedImage m, BufferedImage s) throws Exception {
+    public static void pictureToFrames(BufferedImage m, BufferedImage s) throws IOException {
 	if( s.getWidth() > m.getWidth() || s.getHeight() > m.getHeight() )
 		throw new AssertionError();
 	int[][] step = sToStep(m,s);
@@ -56,7 +60,7 @@ public class MS2Frame{
 		for(int f=0;f<frames.length;++f)
 			ImageIO.write(frames[f], FRAME_FORMAT, sOut());
     }
-    public static int[][] sToStep(final BufferedImage m, final BufferedImage s) throws Exception {
+    public static int[][] sToStep(final BufferedImage m, final BufferedImage s)throws IOException{
 	int[][] step = new int[s.getWidth()][s.getHeight()];
 	for(int i=0; i<s.getWidth(); ++i){
 		for(int j=0; j<s.getHeight(); ++j){
@@ -83,11 +87,11 @@ public class MS2Frame{
 		//	if(DEBUG)System.err.print(stepRed+"#");
 		}
 	}
-	if(DEBUG)ImageIO.write(s, FRAME_FORMAT, new FileOutputStream("step.png"));
+	if(F_OUT_DEBUG)ImageIO.write(s, FRAME_FORMAT, sOut());
 	return step;
     }
     /** 写入第frameIndex帧到第(2*HALF_HDP-frameIndex-1)帧 */
-    public static void recurWrite(BufferedImage m, final int[][] step, final int frameIndex) throws Exception {
+    public static void recurWrite(BufferedImage m, final int[][] step, final int frameIndex) throws IOException {
 	if(frameIndex == HALF_HDP) return; //frameIndex自增到了中间就不再展开新递归
 	if(frameIndex < 0 || frameIndex > HALF_HDP)
 		throw new AssertionError();

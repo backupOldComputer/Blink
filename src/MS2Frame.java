@@ -1,5 +1,6 @@
 package src;
 import java.io.*;
+import java.awt.Color;
 import java.awt.image.*;
 import javax.imageio.*;
 
@@ -55,22 +56,34 @@ public class MS2Frame{
 		for(int f=0;f<frames.length;++f)
 			ImageIO.write(frames[f], FRAME_FORMAT, sOut());
     }
-    public static int[][] sToStep(final BufferedImage m, final BufferedImage s){
+    public static int[][] sToStep(final BufferedImage m, final BufferedImage s) throws Exception {
 	int[][] step = new int[s.getWidth()][s.getHeight()];
 	for(int i=0; i<s.getWidth(); ++i){
 		for(int j=0; j<s.getHeight(); ++j){
-			if(s.getRGB(i,j) != java.awt.Color.WHITE.getRGB()){
+			if(s.getRGB(i,j) != Color.WHITE.getRGB()){
 				step[i][j] = 0;
 				continue;
 			}//选区外为0，选区内为step值
 			int red = ( m.getRGB(i,j)/0x10000 ) & 0xff ;
 			int stepRed = (255 - red)/HALF_HDP;	//256做被减数有时会导致颜色抖动
-			if(stepRed<1) stepRed = 0 - red/HALF_HDP;
+			while(stepRed<16) { //通过此阈值处理过亮的像素
+				Color source = new Color(m.getRGB(i,j), true);
+				Color dest = source.darker();
+				m.setRGB(i,j,dest.getRGB());
+				red = ( m.getRGB(i,j)/0x10000 ) & 0xff ;
+				stepRed = (255 - red)/HALF_HDP;	//256做被减数有时会导致颜色抖动
+			}
+		//	if(stepRed<1) stepRed = 0 - red/HALF_HDP;
 			step[i][j] = 0x10000*stepRed;
-//			if(DEBUG)System.err.print(stepRed+"#");
+		/*	if(stepRed<1){
+				step[i][j]= -( (m.getRGB(i,j)&0x00ffffff)%0x10000 )/HALF_HDP;
+				if(DEBUG)System.err.print(step[i][j]+" ");
+			}
+		*/
+		//	if(DEBUG)System.err.print(stepRed+"#");
 		}
 	}
-//	if(DEBUG)ImageIO.write(s, FRAME_FORMAT, new FileOutputStream("step.png"));
+	if(DEBUG)ImageIO.write(s, FRAME_FORMAT, new FileOutputStream("step.png"));
 	return step;
     }
     /** 写入第frameIndex帧到第(2*HALF_HDP-frameIndex-1)帧 */

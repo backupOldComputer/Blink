@@ -1,9 +1,16 @@
 *.mp4
 !sample/SampleOutput.mp4
-src/*.class
+#忽略：除样例以外，任何目录中的mp4文件
 audio/
 video/
+
+#java字节码文件
+src/*.class
+
+#为debug而生成的文件
 F_OUT_DEBUG/
+
+#所有仓库文件
 mWarehouse/
 cWarehouse/
 pWarehouse/

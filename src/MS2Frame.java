@@ -47,6 +47,9 @@ public class MS2Frame{
 		pictureToFrames(m, s);
 	}
     }
+    public static boolean isChooes(int rgb){
+	return rgb == Color.WHITE.getRGB();
+    }
     public static void pictureToFrames(BufferedImage m, BufferedImage s) throws IOException {
 	int r = s.getWidth();
 	int c = s.getHeight();
@@ -54,15 +57,13 @@ public class MS2Frame{
 	int rb=-1,re=0,cb=c-1,ce=0;
 	for(int i=0; i<r; ++i){	//TODO:Raster与起始坐标优化
 	    for(int j=0; j<c; ++j){
-	   	if(s.getRGB(i,j) != Color.WHITE.getRGB()){//TODO:函数判断
-//	   		step[i][j] = 0;//选区外为0，选区内为step值
-	   		continue;
+		if( isChooes( s.getRGB(i,j) ) ){
+		    //首个选区像素可确定rb，最后一个选区像素可确定re
+		    if(rb == -1) rb = i; 
+		    re = i; 
+		    cb = (j<cb)?j:cb;
+		    ce = (j>ce)?j:ce; 
 	   	}
-		//首个选区像素可确定rb，最后一个选区像素可确定re
-	   	if(rb == -1) rb = i; 
-		re = i; 
-		cb = (j<cb)?j:cb;
-		ce = (j>ce)?j:ce; 
 	    }
 	}
 	//DOING:minX和minY优化性能
@@ -71,6 +72,10 @@ public class MS2Frame{
 		int x = i+rb;
 		for(int j=0; j < step[0].length ; ++j){
 			int y = j+cb;
+			if( ! isChooes( s.getRGB(x,y) ) ){
+				step[i][j] = 0;//选区外为0，选区内为step值
+				continue;
+			}
 			int red;//处理过亮的像素
 			while( ( red = rgba2Red(m.getRGB(x,y)) ) > MAX_SUB_RED){
 				Color source = new Color(m.getRGB(x,y), true);

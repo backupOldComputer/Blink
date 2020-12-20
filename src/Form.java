@@ -26,7 +26,7 @@ public class Form extends JFrame implements ActionListener {
     private void nextImage() {
         if(scales.isEmpty()){
             hdp.stop();
-            Tool.savePropAsk(xml);
+            Tool.savePropAsk(xml); //太卡时可能会导致多问几次
         } else {
             takeFromQueue();
             repaint();

@@ -9,15 +9,23 @@ import javax.swing.*;
 public class FileOperate {
     public static final boolean IS_WIN = false;
     public static final String SEP = IS_WIN ? "\\\\" : "/";
-    public static final String mWAREHOUSE = "mWarehouse";
-    public static final String cWAREHOUSE = "cWarehouse";
-    public static final String pWAREHOUSE = "pWarehouse";
+    public static final String WAREHOUSE_DIR = "..";	//位于工程文件夹上级
+    public static final String mWAREHOUSE = WAREHOUSE_DIR+SEP+"mWarehouse";
+    public static final String cWAREHOUSE = WAREHOUSE_DIR+SEP+"cWarehouse";
+    public static final String pWAREHOUSE = WAREHOUSE_DIR+SEP+"pWarehouse";
     public static final String M_IMPORT_SUCCESS = "SUCCESS";
 
     public static CipherInputStream getInputStream(final SecretKey sks, File f) {
         CipherInputStream result = null;
         try{
             result = BlockCipher.getInputStream(sks, f);
+            /*
+        } catch (java.io.FileNotFoundException fnfe){
+            JOptionPane.showMessageDialog(null, "选中目录的层次不对");
+            fnfe.printStackTrace();
+            System.exit(0x1e0e1);
+            return null;
+            */
         } catch (InvalidAlgorithmParameterException | InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException | IOException e) {
             e.printStackTrace();
             System.exit(0xea);

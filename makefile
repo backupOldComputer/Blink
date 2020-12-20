@@ -24,7 +24,7 @@ src/MS2Frame.class: src/MS2Frame.java
 
 form: src/Form.class
 	java src.Form
-src/Form.class:
+src/Form.class: src/Form.java src/BlockCipher.java src/FileOperate.java src/Form.java src/Tool.java 
 	javac src/Form.java
 
 select_w_div_h: src/SelectWDivH.class

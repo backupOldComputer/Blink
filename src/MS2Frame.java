@@ -8,19 +8,18 @@ public class MS2Frame{
     public static final boolean DEBUG = false;
     public static final int REPEAT = DEBUG ? 2 : 3;
     public static final int HALF_HDP = DEBUG ? 6 : 12;
-//    public static final int MIN_STEP_RED= 12;//越大越暗，为0时 sToStep 不会修改m
-    public static final int MAX_SUB_RED = 0xff - 144;
+    public static final int MAX_SUB_RED = 0xff - 144;//m的选区像素red分量大于MAX_SUB_RED会触发darker()
+    public static final String FRAME_FORMAT = "PNG"; //帧图片格式，需考虑ffmpeg能否解码，以及java能否编码
     public static final String FILE_SEP = "/";
-    public static final String FRAME_FORMAT = "PNG"; //我的ffmpeg不支持tiff
     
     private static boolean F_OUT_DEBUG = false;
     private static int F_OUT_SUFFIX = 0;
     private static String F_OUT_PATH = "F_OUT_DEBUG";
     private static OutputStream sOut() { //TODO:外置类，cmake
 	if( ! F_OUT_DEBUG) return System.out;
-	new File(F_OUT_PATH).mkdir();
+	++F_OUT_SUFFIX; 
 	try{
-		++F_OUT_SUFFIX; 
+		new File(F_OUT_PATH).mkdir();
 		String name = F_OUT_SUFFIX+"."+FRAME_FORMAT;
 		return new FileOutputStream(F_OUT_PATH + FILE_SEP + name);
 	}catch(FileNotFoundException ex){
@@ -29,7 +28,8 @@ public class MS2Frame{
     }
     public static String pathS2M(String path) {
 	String result = path.substring(0, path.length() - 4 );
-	// path.replaceFirst("pWarehouse/S", "pWarehouse/M");
+	String prefix = "pWarehouse"+FILE_SEP;
+	// path.replaceFirst(prefix+"S", prefix+"M");
 	if(new File(result).isFile()) 
 		return result;
 	else
@@ -41,9 +41,9 @@ public class MS2Frame{
 		return;
 	}
 	if(MAX_SUB_RED <= 0) throw new AssertionError();
-	for(int k=0;k< sPaths.length ;++k){
-		BufferedImage s = ImageIO.read(new File(sPaths[k]));
-		BufferedImage m = ImageIO.read(new File(pathS2M(sPaths[k])));
+	for(String sp : sPaths){
+		BufferedImage s = ImageIO.read(new File(sp));
+		BufferedImage m = ImageIO.read(new File(pathS2M(sp)));
 		pictureToFrames(m, s);
 	}
     }
@@ -55,15 +55,20 @@ public class MS2Frame{
 	//循环写入
 	BufferedImage[] frames = new BufferedImage[HALF_HDP*2];
 	frames[0] = m;//首帧使用（可能被 sToStep 修改过的）m 
-//闪烁深度 ( 以 HALF_HDP==6 时为例 ) ：0,1,2,3,4,5,6,5,4,3,2,1。（0为原图）
-	for(int k=1; k <= HALF_HDP ;k++){ // 注意边界条件
+//闪烁深度 ( 以 HALF_HDP==6 , step==10时为例 ) 
+//frames下标：  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11。（0为原图）
+//红分量深度：100,110,120,130,140,150,160,150,140,130,120,110。（100为原图深度）
+	for(int k=1; k <= HALF_HDP ;k++){ 
 		frames[k] = nextFrame(imClone(frames[k-1]), step, 1);
 		frames[frames.length-k] = frames[k]; //往返闪烁
 	}
 	for(int t=0;t<REPEAT;++t){
-		if(F_OUT_DEBUG && t!=0) break;//文件DEBUG状态下只需写盘一轮 
 		for(int f=0;f<frames.length;++f)
 			ImageIO.write(frames[f], FRAME_FORMAT, sOut());
+		if(F_OUT_DEBUG) {
+			System.err.println("文件DEBUG状态下只需写盘一轮"); 
+			break;
+		}
 	}
     }
     /** 副作用：此方法会让 m 中的选区像素中过于红亮的像素变暗 */

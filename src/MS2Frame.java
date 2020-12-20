@@ -8,8 +8,8 @@ public class MS2Frame{
     public static final boolean DEBUG = false;
     public static final int REPEAT = DEBUG ? 2 : 3;
     public static final int HALF_HDP = DEBUG ? 6 : 12;
-    public static final int MIN_STEP_RED= 12;//越大越暗，为0时 sToStep 不会修改m
-    public static final int MAX_SUB_RED = 0xff - MIN_STEP_RED * HALF_HDP;
+//    public static final int MIN_STEP_RED= 12;//越大越暗，为0时 sToStep 不会修改m
+    public static final int MAX_SUB_RED = 0xff - 144;
     public static final String FILE_SEP = "/";
     public static final String FRAME_FORMAT = "PNG"; //我的ffmpeg不支持tiff
     

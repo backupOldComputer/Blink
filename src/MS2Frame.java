@@ -68,11 +68,11 @@ public class MS2Frame{
 	   	while( ( red = rgba2Red(m.getRGB(i,j)) ) > MAX_SUB_RED){
 	   		Color source = new Color(m.getRGB(i,j), true);
 	   		Color dest = source.darker();
-	   		m.setRGB(i,j,dest.getRGB());//TODOWritableRaster
+	   		m.setRGB(i,j,dest.getRGB());//TODO:WritableRaster
 	   	}
 	   	int stepRed = (255-red)/HALF_HDP;//256做被减数颜色会抖动
 	   	if(DEBUG)System.err.print(stepRed+"#");
-	   	step[i][j] = 0x10000*stepRed;
+	   	step[i-rb][j-cb] = 0x10000*stepRed;
 	    }
 	}
 	//DOING:minX和minY优化性能
@@ -83,7 +83,7 @@ public class MS2Frame{
 //frames下标：  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11。（0为原图）
 //红分量深度：100,110,120,130,140,150,160,150,140,130,120,110。（100为原图深度）
 	for(int k=1; k <= HALF_HDP ;k++){ 
-		frames[k] = nextFrame(imClone(frames[k-1]), step, 1);
+		frames[k] = nextFrame(imClone(frames[k-1]), step, rb, cb, 1);
 		frames[frames.length-k] = frames[k]; //往返闪烁
 	}
 	for(int t=0;t<REPEAT;++t){
@@ -121,13 +121,16 @@ public class MS2Frame{
 	    return ( rgba/0x10000 ) & 0xff;
     }
     /** 此方法会修改m */
-    public static BufferedImage nextFrame(BufferedImage m, final int[][] step, final int addOrSub){
+    public static BufferedImage nextFrame(BufferedImage m, final int[][] step, int rb, int cb, final int addOrSub){
 	int h = step[0].length;
 	for(int i=0; i < step.length ; ++i){
 		if( step[i].length != h )	//断言不是锯齿数组
 			throw new AssertionError();
-		for(int j=0; j < h ; ++j)
-			m.setRGB( i, j, m.getRGB(i,j) + addOrSub * step[i][j] );
+		int x = i+rb;
+		for(int j=0; j < h ; ++j){
+			int y = j+cb;
+			m.setRGB( x,y ,m.getRGB(x,y) + addOrSub*step[i][j] );
+		}
 	}
 	return m;
     }

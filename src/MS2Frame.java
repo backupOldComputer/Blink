@@ -48,10 +48,34 @@ public class MS2Frame{
 	}
     }
     public static void pictureToFrames(BufferedImage m, BufferedImage s) throws IOException {
-	if( s.getWidth() > m.getWidth() || s.getHeight() > m.getHeight() )
-		throw new AssertionError();
-	int[][] step = sToStep(m,s);
-	//TODO:minX和minY优化性能
+	int r = s.getWidth();
+	int c = s.getHeight();
+	if( r > m.getWidth() || c > m.getHeight() ) throw new AssertionError();
+	int[][] step = new int[s.getWidth()][s.getHeight()];
+	int rb=0,re=0,cb=0,ce=0;
+	boolean findBegin = false, findEnd = false;
+	for(int i=0; i<s.getWidth(); ++i){	//TODO:Raster与起始坐标优化
+	    for(int j=0; j<s.getHeight(); ++j){
+	   	if(s.getRGB(i,j) != Color.WHITE.getRGB()){//TODO:函数判断
+//	   		step[i][j] = 0;//选区外为0，选区内为step值
+	   		continue;
+	   	}
+	   	if( ! findBegin){//找到首个选区像素
+	   		findBegin = true;
+	   		rb = i; cb = j;
+	   	}
+	   	int red;//处理过亮的像素
+	   	while( ( red = rgba2Red(m.getRGB(i,j)) ) > MAX_SUB_RED){
+	   		Color source = new Color(m.getRGB(i,j), true);
+	   		Color dest = source.darker();
+	   		m.setRGB(i,j,dest.getRGB());//TODOWritableRaster
+	   	}
+	   	int stepRed = (255-red)/HALF_HDP;//256做被减数颜色会抖动
+	   	if(DEBUG)System.err.print(stepRed+"#");
+	   	step[i][j] = 0x10000*stepRed;
+	    }
+	}
+	//DOING:minX和minY优化性能
 	//循环写入
 	BufferedImage[] frames = new BufferedImage[HALF_HDP*2];
 	frames[0] = m;//首帧使用（可能被 sToStep 修改过的）m 

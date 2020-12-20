@@ -50,6 +50,9 @@ public class MS2Frame{
     public static boolean isChooes(int rgb){
 	return rgb == Color.WHITE.getRGB();
     }
+    public static int rgba2Red(int rgba){
+	return ( rgba/0x10000 ) & 0xff;
+    }
     public static void pictureToFrames(BufferedImage m, BufferedImage s) throws IOException {
 	int r = s.getWidth();
 	int c = s.getHeight();
@@ -89,7 +92,7 @@ public class MS2Frame{
 	}
 	//循环写入
 	BufferedImage[] frames = new BufferedImage[HALF_HDP*2];
-	frames[0] = m;//首帧使用（可能被 sToStep 修改过的）m 
+	frames[0] = m;	//首帧使用（可能被 sToStep 修改过的）m 
 //闪烁深度 ( 以 HALF_HDP==6 , step==10时为例 ) 
 //frames下标：  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11。（0为原图）
 //红分量深度：100,110,120,130,140,150,160,150,140,130,120,110。（100为原图深度）
@@ -105,31 +108,6 @@ public class MS2Frame{
 			break;
 		}
 	}
-    }
-    /** 副作用：此方法会让 m 中的选区像素中过于红亮的像素变暗 */
-    public static int[][] sToStep(BufferedImage m, final BufferedImage s)throws IOException{
-	int[][] step = new int[s.getWidth()][s.getHeight()];
-	for(int i=0; i<s.getWidth(); ++i){	//TODO:Raster与起始坐标优化
-		for(int j=0; j<s.getHeight(); ++j){
-			if(s.getRGB(i,j) != Color.WHITE.getRGB()){
-				step[i][j] = 0;//选区外为0，选区内为step值
-				continue;
-			}
-			int red;//处理过亮的像素
-			while( ( red = rgba2Red(m.getRGB(i,j)) ) > MAX_SUB_RED){
-				Color source = new Color(m.getRGB(i,j), true);
-				Color dest = source.darker();
-				m.setRGB(i,j,dest.getRGB());//TODOWritableRaster
-			}
-			int stepRed = (255-red)/HALF_HDP;//256做被减数颜色会抖动
-			if(DEBUG)System.err.print(stepRed+"#");
-			step[i][j] = 0x10000*stepRed;
-		}
-	}
-	return step;
-    }
-    public static int rgba2Red(int rgba){
-	    return ( rgba/0x10000 ) & 0xff;
     }
     /** 此方法会修改m */
     public static BufferedImage nextFrame(BufferedImage m, final int[][] step, int rb, int cb, final int addOrSub){

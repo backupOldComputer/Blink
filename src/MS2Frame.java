@@ -5,21 +5,24 @@ import java.awt.image.*;
 import javax.imageio.*;
 
 public class MS2Frame{
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
     public static final int REPEAT = DEBUG ? 2 : 3;
     public static final int HALF_HDP = DEBUG ? 6 : 12;
-    public static final int MIN_STEP_RED= 20;//越大越暗，为0时 sToStep 不会修改m
+    public static final int MIN_STEP_RED= 12;//越大越暗，为0时 sToStep 不会修改m
     public static final int MAX_SUB_RED = 0xff - MIN_STEP_RED * HALF_HDP;
+    public static final String FILE_SEP = "/";
     public static final String FRAME_FORMAT = "PNG"; //我的ffmpeg不支持tiff
     
-    private static boolean F_OUT_DEBUG = true;
+    private static boolean F_OUT_DEBUG = false;
     private static int F_OUT_SUFFIX = 0;
     private static String F_OUT_PATH = "F_OUT_DEBUG";
     private static OutputStream sOut() { //TODO:外置类，cmake
 	if( ! F_OUT_DEBUG) return System.out;
 	new File(F_OUT_PATH).mkdir();
 	try{
-		return new FileOutputStream(F_OUT_PATH+"/"+(++F_OUT_SUFFIX));
+		++F_OUT_SUFFIX; 
+		String name = F_OUT_SUFFIX+"."+FRAME_FORMAT;
+		return new FileOutputStream(F_OUT_PATH + FILE_SEP + name);
 	}catch(FileNotFoundException ex){
 		throw new AssertionError();
 	}
@@ -57,9 +60,11 @@ public class MS2Frame{
 		frames[k] = nextFrame(imClone(frames[k-1]), step, 1);
 		frames[frames.length-k] = frames[k]; //往返闪烁
 	}
-	for(int t=0;t<REPEAT;++t)
+	for(int t=0;t<REPEAT;++t){
+		if(F_OUT_DEBUG && t!=0) break;//文件DEBUG状态下只需写盘一轮 
 		for(int f=0;f<frames.length;++f)
 			ImageIO.write(frames[f], FRAME_FORMAT, sOut());
+	}
     }
     /** 副作用：此方法会让 m 中的选区像素中过于红亮的像素变暗 */
     public static int[][] sToStep(BufferedImage m, final BufferedImage s)throws IOException{

@@ -63,7 +63,7 @@ public class MS2Frame{
 	int c = s.getHeight();
 	if( r > m.getWidth() || c > m.getHeight() ) throw new AssertionError();
 	int rb=-1,re=0,cb=(c-1),ce=0;	//二维for循环计算 选区 窗口 矩阵 坐标
-	for(int i=0; i<r; ++i){	//TODO:Raster与起始坐标优化
+	for(int i=0; i<r; ++i){
 	    for(int j=0; j<c; ++j){
 		if( isChooes( s.getRGB(i,j) ) ){
 		    if(rb == -1) rb = i; // 首个选区像素可确定rb

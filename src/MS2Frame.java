@@ -6,13 +6,13 @@ import javax.imageio.*;
 
 public class MS2Frame{
     public static final boolean DEBUG = true;
-    public static final int repeat = DEBUG ? 2 : 3;
+    public static final int REPEAT = DEBUG ? 2 : 3;
     public static final int HALF_HDP = DEBUG ? 6 : 12;
-    public static final int MIN_STEP_RED= 24;//越大越暗，为0时 sToStep 不会修改m
+    public static final int MIN_STEP_RED= 20;//越大越暗，为0时 sToStep 不会修改m
     public static final int MAX_SUB_RED = 0xff - MIN_STEP_RED * HALF_HDP;
     public static final String FRAME_FORMAT = "PNG"; //我的ffmpeg不支持tiff
     
-    private static boolean F_OUT_DEBUG = false;
+    private static boolean F_OUT_DEBUG = true;
     private static int F_OUT_SUFFIX = 0;
     private static String F_OUT_PATH = "F_OUT_DEBUG";
     private static OutputStream sOut() { //TODO:外置类，cmake
@@ -51,13 +51,13 @@ public class MS2Frame{
 	//TODO:minX和minY优化性能
 	//循环写入
 	BufferedImage[] frames = new BufferedImage[HALF_HDP*2];
-	frames[0] = m;
-	frames[frames.length-1] = m;
-	for(int k=1;k< HALF_HDP ;k++){
+	frames[0] = m;//首帧使用（可能被 sToStep 修改过的）m 
+//闪烁深度 ( 以 HALF_HDP==6 时为例 ) ：0,1,2,3,4,5,6,5,4,3,2,1。（0为原图）
+	for(int k=1; k <= HALF_HDP ;k++){ // 注意边界条件
 		frames[k] = nextFrame(imClone(frames[k-1]), step, 1);
-		frames[frames.length-k-1] = frames[k];
+		frames[frames.length-k] = frames[k]; //往返闪烁
 	}
-	for(int t=0;t<repeat;++t)
+	for(int t=0;t<REPEAT;++t)
 		for(int f=0;f<frames.length;++f)
 			ImageIO.write(frames[f], FRAME_FORMAT, sOut());
     }

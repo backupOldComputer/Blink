@@ -131,13 +131,14 @@ class Tool{
             return cancel;
     }
     public static File[] defaultIfCancel() {
-        var allCipherText = new File(FileOperate.cWAREHOUSE).listFiles();
+        String cw = FileOperate.WAREHOUSE_DIR+FileOperate.SEP+FileOperate.cWAREHOUSE;
+        var allCipherText = new File(cw).listFiles();
         if(allCipherText==null) {
             JOptionPane.showMessageDialog(null, "Returns null if this abstract pathname does not denote a directory, or if an I/O error occurs.");
             System.exit(0xce);
         }
         if(allCipherText.length==0){
-            JOptionPane.showMessageDialog(null,"空目录："+FileOperate.cWAREHOUSE);
+            JOptionPane.showMessageDialog(null,"空目录："+cw);
             System.exit(0xb1a);
         }
         var dirs = allCipherText[0].listFiles();

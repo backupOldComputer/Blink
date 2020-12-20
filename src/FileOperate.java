@@ -10,9 +10,9 @@ public class FileOperate {
     public static final boolean IS_WIN = false;
     public static final String SEP = IS_WIN ? "\\\\" : "/";
     public static final String WAREHOUSE_DIR = "..";	//位于工程文件夹上级
-    public static final String mWAREHOUSE = WAREHOUSE_DIR+SEP+"mWarehouse";
-    public static final String cWAREHOUSE = WAREHOUSE_DIR+SEP+"cWarehouse";
-    public static final String pWAREHOUSE = WAREHOUSE_DIR+SEP+"pWarehouse";
+    public static final String mWAREHOUSE = "mWarehouse";
+    public static final String cWAREHOUSE = "cWarehouse";
+    public static final String pWAREHOUSE = "pWarehouse";
     public static final String M_IMPORT_SUCCESS = "SUCCESS";
 
     public static CipherInputStream getInputStream(final SecretKey sks, File f) {
@@ -45,7 +45,7 @@ public class FileOperate {
         }
     }
     public static String importAll(final SecretKey sks) {
-        File[] mRoot = new File(mWAREHOUSE).listFiles();
+        File[] mRoot = new File(WAREHOUSE_DIR+SEP+mWAREHOUSE).listFiles();
         if(mRoot==null) return "blank";
         try {
             for (File file : mRoot) {

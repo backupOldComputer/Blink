@@ -48,6 +48,7 @@ public class MS2Frame{
 	if( s.getWidth() > m.getWidth() || s.getHeight() > m.getHeight() )
 		throw new AssertionError();
 	int[][] step = sToStep(m,s);
+	//TODO:minX和minY优化性能
 	//循环写入
 	BufferedImage[] frames = new BufferedImage[HALF_HDP*2];
 	frames[0] = m;
@@ -73,7 +74,7 @@ public class MS2Frame{
 			while( ( red = rgba2Red(m.getRGB(i,j)) ) > MAX_SUB_RED){
 				Color source = new Color(m.getRGB(i,j), true);
 				Color dest = source.darker();
-				m.setRGB(i,j,dest.getRGB());
+				m.setRGB(i,j,dest.getRGB());//TODOWritableRaster
 			}
 			int stepRed = (255-red)/HALF_HDP;//256做被减数颜色会抖动
 			if(DEBUG)System.err.print(stepRed+"#");

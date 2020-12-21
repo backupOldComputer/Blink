@@ -51,8 +51,8 @@ public class MS2Frame{
 		pictureToFrames(m, s);
 	}
     }
-    public static boolean isChooes(int rgb) {
-	return rgb == Color.WHITE.getRGB();
+    public static boolean isChooes(BufferedImage s, int x, int y) {
+	return s.getRGB(x,y) == Color.WHITE.getRGB();
     }
     public static int rgba2Red(int rgba) {
 	return ( rgba/0x10000 ) & 0xff;
@@ -69,7 +69,7 @@ public class MS2Frame{
 	int rb=-1,re=0,cb=(c-1),ce=0;	//二维for循环计算 选区 窗口 矩阵 坐标
 	for(int i=0; i<r; ++i){
 	    for(int j=0; j<c; ++j){
-		if( isChooes( s.getRGB(i,j) ) ){
+		if( isChooes( s,i,j ) ){
 		    if(rb == -1) rb = i; // 首个选区像素可确定rb
 		    re = i; // 最后一个选区像素可确定re
 		    cb = (j<cb)?j:cb;
@@ -82,7 +82,7 @@ public class MS2Frame{
 		int x = i+rb;
 		for(int j=0; j < step[0].length ; ++j){
 			int y = j+cb;
-			if( ! isChooes( s.getRGB(x,y) ) ){
+			if( ! isChooes( s,x,y ) ){
 				step[i][j] = 0;//选区外为0，选区内为step值
 				continue;
 			}
@@ -107,7 +107,6 @@ public class MS2Frame{
 	}
 	writeFrames(frames); //REPEAT次一重循环写入帧
     }
-    //MAX_SUB_RED 改为 MAX_RED
     public static Color handleTooBright(Color mc){
 	while( mc.getRed() > MAX_RED ){
 		mc = mc.darker();

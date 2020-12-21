@@ -8,8 +8,8 @@ public class MS2Frame{
     public static final boolean DEBUG = true;
     public static final int REPEAT = DEBUG ? 2 : 3;
     public static final int HALF_HDP = DEBUG ? 6 : 12;
-    public static final int MAX_RED = 255-144;//m的选区像素red分量大于MAX_RED会触发darker()
-    public static final String FRAME_FORMAT = "PNG"; //帧图片格式，需考虑ffmpeg能否解码，以及java能否编码
+    public static final int MAX_RED = 255-144;	//red大于MAX_RED会触发darker()
+    public static final String FRAME_FORMAT = "PNG";	//需考虑ffmpeg能否解码
     public static final String FILE_SEP = "/";
     
     private static boolean F_OUT_DEBUG = false;
@@ -27,13 +27,10 @@ public class MS2Frame{
 	}
     }
     public static String pathS2M(String path) {
-	String result = path.substring(0, path.length() - 4 );//TODO:让4更健壮
+	String result = path.substring(0, path.lastIndexOf('.') );//去掉后缀
 	String prefix = "pWarehouse"+FILE_SEP;
-	// path.replaceFirst(prefix+"S", prefix+"M");
-	if(new File(result).isFile()) 
-		return result;
-	else
-		throw new AssertionError();
+	// .replaceFirst(prefix+"S", prefix+"M");
+	return result;
     }
     public static void main(String[] sPaths) throws IOException {
 	if(sPaths == null || sPaths.length == 0){
@@ -46,29 +43,19 @@ public class MS2Frame{
 	}
 	if(MAX_RED <= 0) throw new AssertionError();
 	for(String sp : sPaths){
+		File mf = new File(pathS2M(sp));
+		if( ! mf.exists() || mf.isDirectory()) 
+			throw new AssertionError();
 		BufferedImage s = ImageIO.read(new File(sp));
-		BufferedImage m = ImageIO.read(new File(pathS2M(sp)));
+		BufferedImage m = ImageIO.read(mf);
 		pictureToFrames(m, s);
 	}
-    }
-    public static BufferedImage imClone(BufferedImage from) {
-	BufferedImage to = new BufferedImage(from.getWidth(), from.getHeight(), from.getType());
-        to.setData(from.getData());
-	return to;
-    }
-    /** 当前版本只有 s 中的纯白像素才是选区 */
-    public static boolean isChooes(BufferedImage s, int x, int y) {
-	return s.getRGB(x,y) == Color.WHITE.getRGB();
-    }
-    /** 此函数已被弃用 */
-    public static int rgba2Red(int rgba) {
-	return ( rgba/0x10000 ) & 0xff;
     }
     public static void pictureToFrames(BufferedImage m, BufferedImage s) throws IOException {
 	int r = s.getWidth();
 	int c = s.getHeight();
 	if( r > m.getWidth() || c > m.getHeight() ) throw new AssertionError();
-	int rb=-1,re=0,cb=(c-1),ce=0;	//二维for循环计算 选区 窗口 矩阵 坐标
+	int rb=-1,re=0,cb=(c-1),ce=0; // 二维for循环计算 选区 窗口 矩阵 坐标
 	for(int i=0; i<r; ++i){
 	    for(int j=0; j<c; ++j){
 		if( isChooes( s,i,j ) ){
@@ -79,7 +66,8 @@ public class MS2Frame{
 	   	}
 	    }
 	}
-	int[][] step = new int[re+1-rb][ce+1-cb]; //三重循环处理选区红亮
+
+	int[][] step = new int[re+1-rb][ce+1-cb]; // 3重循环算step让选区红亮
 	for(int i=0; i < step.length ; ++i){
 		int x = i+rb;
 		for(int j=0; j < step[0].length ; ++j){
@@ -93,44 +81,23 @@ public class MS2Frame{
 			step[i][j] = (0xff - co.getRed()) /HALF_HDP; 
 		}
 	}
-	//循环写入
+
 	BufferedImage[] frames = new BufferedImage[HALF_HDP*2];
-	frames[0] = m;	//首帧使用（可能被 sToStep 修改过的）m 
+	frames[0] = m;	//首帧使用（可能被darker()处理过的）m 
 /* 三重循环算出半程帧并引用于后半程 ( 以 HALF_HDP==6 , step==30时为例 ) 
  * frames下标： 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11（0为原图）
  * 红分量深度：30,40,50,60,70,80,90,80,70,60,50,40（100为原图深度）
  */
 	for(int k=1; k <= HALF_HDP ;k++){ 
 		BufferedImage mClone = imClone(frames[k-1]);
-		WritableRaster wrm = mClone.getRaster();
-		wrm = nextFrame(wrm, step, rb, cb, 1);
+		nextFrame(mClone.getRaster(), step, rb, cb, 1);
 		frames[k] = mClone;
 		frames[frames.length-k] = frames[k]; //往返闪烁
 	}
 	writeFrames(frames); //REPEAT次一重循环写入帧
     }
-    public static Color handleTooBright(Color mc){
-	while( mc.getRed() > MAX_RED ){
-		mc = mc.darker();
-	}
-	return mc;
-    }
-    public static void writeFrames(BufferedImage[] frames){
-	for(int t=0;t<REPEAT;++t){
-		for(int f=0;f<frames.length;++f)
-			try{
-				ImageIO.write(frames[f], FRAME_FORMAT, sOut());
-			}catch(IOException ex){
-				throw new AssertionError();
-			}
-		if(F_OUT_DEBUG) {
-			System.err.println("文件DEBUG状态下只需写盘一轮"); 
-			break;
-		}
-	}
-    }
     /** 此方法会修改m */
-    public static WritableRaster nextFrame(WritableRaster wrm, final int[][] step, int rb, int cb, final int addOrSub){
+    public static void nextFrame(WritableRaster wrm, final int[][] step, int rb, int cb, final int addOrSub){
 	int h = step[0].length;
 	for(int i=0; i < step.length ; ++i){
 		if( step[i].length != h )	//断言不是锯齿数组
@@ -146,6 +113,37 @@ public class MS2Frame{
 		    }
 		}
 	}
-	return wrm;
+    }
+    public static void writeFrames(BufferedImage[] frames){
+	for(int t=0;t<REPEAT;++t){
+		for(int f=0;f<frames.length;++f)
+			try{
+				ImageIO.write(frames[f], FRAME_FORMAT, sOut());
+			}catch(IOException ex){
+				throw new AssertionError();
+			}
+		if(F_OUT_DEBUG) {
+			System.err.println("文件DEBUG状态下只需写盘一轮"); 
+			break;
+		}
+	}
+    }
+    public static Color handleTooBright(Color mc){
+	while( mc.getRed() > MAX_RED )
+		mc = mc.darker();
+	return mc;
+    }
+    public static BufferedImage imClone(BufferedImage from) {
+	BufferedImage to = new BufferedImage(from.getWidth(), from.getHeight(), from.getType());
+        to.setData(from.getData());
+	return to;
+    }
+    /** 当前版本只有 s 中的纯白像素才是选区 */
+    public static boolean isChooes(BufferedImage s, int x, int y) {
+	return s.getRGB(x,y) == Color.WHITE.getRGB();
+    }
+    /** 此函数已被弃用 */
+    public static int rgba2Red(int rgba) {
+	return ( rgba/0x10000 ) & 0xff;
     }
 }

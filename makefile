@@ -35,9 +35,9 @@ src/SelectWDivH.class: src/SelectWDivH.java
 
 clean:
 	rm src/*.class
-shred_mWarehouse:
-	shred -v mWarehouse/*/*/*
 shred_video:
 	shred -v video/*.mp4
 shred_f_out_debug:
 	shred -v -u F_OUT_DEBUG/*.*
+shred_mWarehouse:
+	shred -v ../mWarehouse/*/*/*

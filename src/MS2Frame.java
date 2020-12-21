@@ -105,19 +105,14 @@ public class MS2Frame{
 	}
 	writeFrames(frames); //REPEAT次一重循环写入帧
     }
+    //handleTooBright 不再使用 WritableRaster
     public static int handleTooBright(BufferedImage m, int x, int y){
-	WritableRaster wrm = m.getRaster();
-	int[] iArray = new int[3];
-	do{
-		wrm.getPixel(x,y,iArray);
-		if(iArray[0] <= 0xff - MAX_SUB_RED) break;
-		Color source = new Color(m.getRGB(x,y), true);
+	int rgba;
+	while( ( rgba2Red( rgba = m.getRGB(x,y)) ) > 0xff - MAX_SUB_RED ){
+		Color source = new Color(rgba, true);
 		m.setRGB(x,y,source.darker().getRGB());
-		//		iArray[0] -= 10;
-		//		wrm.setPixel(x,y,iArray);	//过于白亮的像素会变成蓝绿色
-	}while(true);
-//	if(DEBUG)System.err.print(stepRed+"#");
-	return iArray[0];
+	}
+	return rgba2Red(rgba);
     }
     public static void writeFrames(BufferedImage[] frames){
 	for(int t=0;t<REPEAT;++t){

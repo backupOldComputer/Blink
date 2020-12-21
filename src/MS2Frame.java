@@ -5,7 +5,7 @@ import java.awt.image.*;
 import javax.imageio.*;
 
 public class MS2Frame{
-    public static final boolean DEBUG = false;
+    public static final boolean DEBUG = true;
     public static final int REPEAT = DEBUG ? 2 : 3;
     public static final int HALF_HDP = DEBUG ? 6 : 12;
     public static final int MAX_SUB_RED = 0xff - 144;//m的选区像素red分量大于MAX_SUB_RED会触发darker()
@@ -40,7 +40,7 @@ public class MS2Frame{
 		System.err.println("🌃🌃🌃以指示选区的掩码图片的路经集作为参数执行此程序，程序会自动去掉后缀以匹配原图片🌃🌃🌃");
 		return;
 	}
-	if(sPaths.length == 1){
+	if(sPaths.length == 1 && sPaths[0].indexOf('*') != -1){
 		System.err.println(sPaths[0] + "为空，程序退出");
 		return;
 	}
@@ -97,7 +97,10 @@ public class MS2Frame{
  * 红分量深度：30,40,50,60,70,80,90,80,70,60,50,40（100为原图深度）
  */
 	for(int k=1; k <= HALF_HDP ;k++){ 
-		frames[k] = nextFrame(imClone(frames[k-1]), step, rb, cb, 1);
+		BufferedImage mClone = imClone(frames[k-1]);
+		WritableRaster wrm = mClone.getRaster();
+		wrm = nextFrame(wrm, step, rb, cb, 1);
+		frames[k] = mClone;
 		frames[frames.length-k] = frames[k]; //往返闪烁
 	}
 	writeFrames(frames); //REPEAT次一重循环写入帧
@@ -128,8 +131,7 @@ public class MS2Frame{
 	}
     }
     /** 此方法会修改m */
-    public static BufferedImage nextFrame(BufferedImage m, final int[][] step, int rb, int cb, final int addOrSub){
-	WritableRaster wrm = m.getRaster();
+    public static WritableRaster nextFrame(WritableRaster wrm, final int[][] step, int rb, int cb, final int addOrSub){
 	int h = step[0].length;
 	for(int i=0; i < step.length ; ++i){
 		if( step[i].length != h )	//断言不是锯齿数组
@@ -137,12 +139,14 @@ public class MS2Frame{
 		int x = i+rb;
 		for(int j=0; j < h ; ++j){
 			int y = j+cb;
+		    if(step[i][j]!=0){
 			int[] iArray = new int[4];
 			wrm.getPixel(x,y,iArray);
-			iArray[1] += addOrSub*step[i][j];
+			iArray[0] += 20 * (step[i][j] - 1); // addOrSub*step[i][j];
 			wrm.setPixel( x,y , iArray );
+		    }
 		}
 	}
-	return m;
+	return wrm;
     }
 }

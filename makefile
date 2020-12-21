@@ -1,11 +1,12 @@
-all: test
+all: help test
+
+help:
 	ls ../pWarehouse/S/*/*.bmp | head
 	ls ../pWarehouse/S/*/*.png | head
 	#echo 用 make select_w_div_h 配合PhotoShop的魔棒工具制作 S
 	#echo 用 make form 操作窗体准备好 M 和 S
 	#echo 用 make sample 生成样例
 
-	
 test: src/MS2Frame.class
 	java src.MS2Frame ../pWarehouse/S/*/*.png | '/usr/local/ffmpeg/bin/ffmpeg' -r 6 -i pipe:0 -y -b:v 128K out.mp4
 

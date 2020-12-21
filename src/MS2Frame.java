@@ -27,7 +27,7 @@ public class MS2Frame{
 	}
     }
     public static String pathS2M(String path) {
-	String result = path.substring(0, path.length() - 4 );
+	String result = path.substring(0, path.length() - 4 );//TODO:让4更健壮
 	String prefix = "pWarehouse"+FILE_SEP;
 	// path.replaceFirst(prefix+"S", prefix+"M");
 	if(new File(result).isFile()) 
@@ -51,16 +51,18 @@ public class MS2Frame{
 		pictureToFrames(m, s);
 	}
     }
-    public static boolean isChooes(BufferedImage s, int x, int y) {
-	return s.getRGB(x,y) == Color.WHITE.getRGB();
-    }
-    public static int rgba2Red(int rgba) {
-	return ( rgba/0x10000 ) & 0xff;
-    }
     public static BufferedImage imClone(BufferedImage from) {
 	BufferedImage to = new BufferedImage(from.getWidth(), from.getHeight(), from.getType());
         to.setData(from.getData());
 	return to;
+    }
+    /** 当前版本只有 s 中的纯白像素才是选区 */
+    public static boolean isChooes(BufferedImage s, int x, int y) {
+	return s.getRGB(x,y) == Color.WHITE.getRGB();
+    }
+    /** 此函数已被弃用 */
+    public static int rgba2Red(int rgba) {
+	return ( rgba/0x10000 ) & 0xff;
     }
     public static void pictureToFrames(BufferedImage m, BufferedImage s) throws IOException {
 	int r = s.getWidth();

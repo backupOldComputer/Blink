@@ -66,12 +66,16 @@ public class MS2Frame{
 	   	}
 	    }
 	}
-
 	int[][] step = new int[re+1-rb][ce+1-cb]; // 3重循环算step让选区红亮
+//	BufferedImage stepBI = s.getSubimage(rb,cb,re+1-rb,ce+1-cb);
 	for(int i=0; i < step.length ; ++i){
 		int x = i+rb;
 		for(int j=0; j < step[0].length ; ++j){
 			int y = j+cb;
+//			if( ! isChooes( stepBI, i, j ) ){
+//				step[i][j] = 0;//选区外为0，选区内为step值
+//				continue;
+//			}
 			if( ! isChooes( s,x,y ) ){
 				step[i][j] = 0;//选区外为0，选区内为step值
 				continue;

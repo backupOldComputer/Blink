@@ -4,6 +4,9 @@
 audio/
 video/
 
+#test文件夹
+sample/S/test/
+
 #java字节码文件
 src/*.class
 

@@ -8,7 +8,7 @@ help:
 	#echo 用 make sample 生成样例
 
 test: src/MS2Frame.class
-	java src.MS2Frame ../pWarehouse/S/*/*.png | '/usr/local/ffmpeg/bin/ffmpeg' -r 6 -i pipe:0 -y -b:v 128K out.mp4
+	java src.MS2Frame sample/S/test/*.png | '/usr/local/ffmpeg/bin/ffmpeg' -r 6 -i pipe:0 -y -b:v 128K out.mp4
 
 sample: src/MS2Frame.class
 	java src.MS2Frame sample/S/SampleInput/*.png | '/usr/local/ffmpeg/bin/ffmpeg' -r 8 -i pipe:0 -y -b:v 128K out.mp4

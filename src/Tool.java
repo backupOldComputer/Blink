@@ -24,7 +24,7 @@ class Tool{
     public static final String DEFAULT_REG = DEBUG ? "." : "【M】【|【M】[^【]";
     public static final String DEFAULT_PROP_VALUE = "0";
     public static final String TEXT_NEXT = "→";
-    public static final String CURRENT_DIRECTORY = FileOperate.cWAREHOUSE;
+    public static final String CURRENT_DIRECTORY = FileOperate.WAREHOUSE_DIR+FileOperate.SEP+FileOperate.cWAREHOUSE;
     
     
     public static CipherInputStream doGetInputStream(final SecretKey sks, File file){
@@ -131,7 +131,7 @@ class Tool{
             return cancel;
     }
     public static File[] defaultIfCancel() {
-        String cw = FileOperate.WAREHOUSE_DIR+FileOperate.SEP+FileOperate.cWAREHOUSE;
+        String cw = CURRENT_DIRECTORY;
         var allCipherText = new File(cw).listFiles();
         if(allCipherText==null) {
             JOptionPane.showMessageDialog(null, "Returns null if this abstract pathname does not denote a directory, or if an I/O error occurs.");

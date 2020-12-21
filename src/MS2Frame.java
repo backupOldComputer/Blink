@@ -37,7 +37,7 @@ public class MS2Frame{
     }
     public static void main(String[] sPaths) throws IOException {
 	if(sPaths == null || sPaths.length == 0){
-		System.out.println("以指示选区的掩码图片的路经集作为参数执行此程序，程序会自动去掉后缀以匹配原图片");
+		System.err.println("以指示选区的掩码图片的路经集作为参数执行此程序，程序会自动去掉后缀以匹配原图片");
 		return;
 	}
 	if(MAX_SUB_RED <= 0) throw new AssertionError();
@@ -125,6 +125,7 @@ public class MS2Frame{
     }
     /** 此方法会修改m */
     public static BufferedImage nextFrame(BufferedImage m, final int[][] step, int rb, int cb, final int addOrSub){
+	WritableRaster wrm = m.getRaster();
 	int h = step[0].length;
 	for(int i=0; i < step.length ; ++i){
 		if( step[i].length != h )	//断言不是锯齿数组
@@ -132,7 +133,10 @@ public class MS2Frame{
 		int x = i+rb;
 		for(int j=0; j < h ; ++j){
 			int y = j+cb;
-			m.setRGB( x,y ,m.getRGB(x,y) + addOrSub*step[i][j] );
+			int[] iArray = new int[4];
+			wrm.getPixel(x,y,iArray);
+			iArray[1] += addOrSub*step[i][j];
+			wrm.setPixel( x,y , iArray );
 		}
 	}
 	return m;

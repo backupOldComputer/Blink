@@ -107,12 +107,11 @@ public class MS2Frame{
     }
     //handleTooBright 不再使用 WritableRaster
     public static int handleTooBright(BufferedImage m, int x, int y){
-	int rgba;
-	while( ( rgba2Red( rgba = m.getRGB(x,y)) ) > 0xff - MAX_SUB_RED ){
-		Color source = new Color(rgba, true);
-		m.setRGB(x,y,source.darker().getRGB());
+	Color mc = null;
+	while( ( mc = new Color(m.getRGB(x,y),true) ).getRed() > 0xff - MAX_SUB_RED ){
+		m.setRGB(x, y, mc.darker().getRGB());
 	}
-	return rgba2Red(rgba);
+	return mc.getRed();
     }
     public static void writeFrames(BufferedImage[] frames){
 	for(int t=0;t<REPEAT;++t){

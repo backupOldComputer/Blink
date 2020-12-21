@@ -8,7 +8,7 @@ public class MS2Frame{
     public static final boolean DEBUG = true;
     public static final int REPEAT = DEBUG ? 2 : 3;
     public static final int HALF_HDP = DEBUG ? 6 : 12;
-    public static final int MAX_SUB_RED = 0xff - 144;//m的选区像素red分量大于MAX_SUB_RED会触发darker()
+    public static final int MAX_SUB_RED = 144;//m的选区像素red分量大于MAX_SUB_RED会触发darker()
     public static final String FRAME_FORMAT = "PNG"; //帧图片格式，需考虑ffmpeg能否解码，以及java能否编码
     public static final String FILE_SEP = "/";
     
@@ -44,7 +44,7 @@ public class MS2Frame{
 		System.err.println(sPaths[0] + "为空，程序退出");
 		return;
 	}
-	if(MAX_SUB_RED <= 0) throw new AssertionError();
+	if(MAX_SUB_RED > 0xff) throw new AssertionError();
 	for(String sp : sPaths){
 		BufferedImage s = ImageIO.read(new File(sp));
 		BufferedImage m = ImageIO.read(new File(pathS2M(sp)));
@@ -86,7 +86,7 @@ public class MS2Frame{
 				step[i][j] = 0;//选区外为0，选区内为step值
 				continue;
 			}
-			step[i][j] = handleTooBright(m,x,y); 
+			step[i][j] = (0xff - handleTooBright(m,x,y)) /HALF_HDP; 
 		}
 	}
 	//循环写入
@@ -108,24 +108,16 @@ public class MS2Frame{
     public static int handleTooBright(BufferedImage m, int x, int y){
 	WritableRaster wrm = m.getRaster();
 	int[] iArray = new int[3];
-	wrm.getPixel(x,y,iArray);
-	while(iArray[0] > MAX_SUB_RED){
+	do{
+		wrm.getPixel(x,y,iArray);
+		if(iArray[0] <= 0xff - MAX_SUB_RED) break;
 		Color source = new Color(m.getRGB(x,y), true);
-		Color dest = source.darker();
-		m.setRGB(x,y,dest.getRGB());
+		m.setRGB(x,y,source.darker().getRGB());
 		//		iArray[0] -= 10;
 		//		wrm.setPixel(x,y,iArray);	//过于白亮的像素会变成蓝绿色
-		wrm.getPixel(x,y,iArray);//TODO:do-while
-	}
-	return iArray[0]/HALF_HDP;
-	/*
-	   int red;//处理过亮的像素
-	   while( ( red = rgba2Red(m.getRGB(x,y)) ) > MAX_SUB_RED){
-	   }
-	   int stepRed = (255-red)/HALF_HDP;//256做被减数颜色会抖动
-	   if(DEBUG)System.err.print(stepRed+"#");
-	   return 0x10000*stepRed;
-	   */
+	}while(true);
+//	if(DEBUG)System.err.print(stepRed+"#");
+	return iArray[0];
     }
     public static void writeFrames(BufferedImage[] frames){
 	for(int t=0;t<REPEAT;++t){

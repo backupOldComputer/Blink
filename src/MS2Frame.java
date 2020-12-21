@@ -6,6 +6,7 @@ import javax.imageio.*;
 
 public class MS2Frame{
     public static final boolean DEBUG = true;
+    public static final boolean HSB_MODE = true;
     public static final int REPEAT = DEBUG ? 2 : 3;
     public static final int HALF_HDP = DEBUG ? 6 : 12;
     public static final int MAX_RED = 255-144;	//red大于MAX_RED会触发darker()
@@ -80,7 +81,12 @@ public class MS2Frame{
 				step[i][j] = 0;//选区外为0，选区内为step值
 				continue;
 			}
-			Color co=handleTooBright(new Color(m.getRGB(x,y),true));
+			Color co = new Color(m.getRGB(x,y),true);
+			if(HSB_MODE){
+				
+			}else{
+				co = handleTooBright(co);
+			}
 			m.setRGB(x, y, co.getRGB());
 			step[i][j] = (0xff - co.getRed()) /HALF_HDP; 
 		}
@@ -94,14 +100,15 @@ public class MS2Frame{
  */
 	for(int k=1; k <= HALF_HDP ;k++){ 
 		BufferedImage mClone = imClone(frames[k-1]);
-		nextFrame(mClone.getRaster(), step, rb, cb, 1);
+		nextFrame(mClone, step, rb, cb, 1);
 		frames[k] = mClone;
 		frames[frames.length-k] = frames[k]; //往返闪烁
 	}
 	writeFrames(frames); //REPEAT次一重循环写入帧
     }
     /** 此方法会修改m */
-    public static void nextFrame(WritableRaster wrm, final int[][] step, int rb, int cb, final int addOrSub){
+    public static void nextFrame(BufferedImage m, final int[][] step, int rb, int cb, final int addOrSub){
+	WritableRaster wrm = m.getRaster();
 	int h = step[0].length;
 	for(int i=0; i < step.length ; ++i){
 		if( step[i].length != h )	//断言不是锯齿数组
@@ -109,12 +116,20 @@ public class MS2Frame{
 		int x = i+rb;
 		for(int j=0; j < h ; ++j){
 			int y = j+cb;
-		    if(step[i][j]!=0){
 			int[] iArray = new int[4];
 			wrm.getPixel(x,y,iArray);
-			iArray[0] += addOrSub*step[i][j];
-			wrm.setPixel( x,y , iArray );
-		    }
+
+			if(HSB_MODE){
+				float[] hsbvals = new float[3];
+				hsbvals = Color.RGBtoHSB(iArray[0],iArray[1],
+						iArray[2],hsbvals); 
+				hsbvals[0] += addOrSub*(1.0-hsbvals[0])/2;
+				m.setRGB(x,y, Color.HSBtoRGB(hsbvals[0],
+							hsbvals[1],hsbvals[2]));
+			}else{
+				iArray[0] += addOrSub*step[i][j];
+				wrm.setPixel( x,y , iArray );
+			}
 		}
 	}
     }

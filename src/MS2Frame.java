@@ -124,7 +124,7 @@ public class MS2Frame{
 				float[] hsbvals = new float[3];
 				hsbvals = Color.RGBtoHSB(iArray[0],iArray[1],
 						iArray[2],hsbvals); 
-				hsbvals[COLOR_INDEX] += addOrSub*(1.0-hsbvals[COLOR_INDEX])/2;
+				hsbvals[COLOR_INDEX] += addOrSub*(step[i][j]/256.0);
 				m.setRGB(x,y, Color.HSBtoRGB(hsbvals[0],
 							hsbvals[1],hsbvals[2]));
 			}else{

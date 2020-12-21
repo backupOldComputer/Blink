@@ -8,7 +8,7 @@ public class MS2Frame{
     public static final boolean DEBUG = true;
     public static final int REPEAT = DEBUG ? 2 : 3;
     public static final int HALF_HDP = DEBUG ? 6 : 12;
-    public static final int MAX_SUB_RED = 144;//m的选区像素red分量大于MAX_SUB_RED会触发darker()
+    public static final int MAX_RED = 255-144;//m的选区像素red分量大于MAX_RED会触发darker()
     public static final String FRAME_FORMAT = "PNG"; //帧图片格式，需考虑ffmpeg能否解码，以及java能否编码
     public static final String FILE_SEP = "/";
     
@@ -44,7 +44,7 @@ public class MS2Frame{
 		System.err.println(sPaths[0] + "为空，程序退出");
 		return;
 	}
-	if(MAX_SUB_RED > 0xff) throw new AssertionError();
+	if(MAX_RED <= 0) throw new AssertionError();
 	for(String sp : sPaths){
 		BufferedImage s = ImageIO.read(new File(sp));
 		BufferedImage m = ImageIO.read(new File(pathS2M(sp)));
@@ -107,9 +107,9 @@ public class MS2Frame{
 	}
 	writeFrames(frames); //REPEAT次一重循环写入帧
     }
-    //handleTooBright职责单一化：只处理Color
+    //MAX_SUB_RED 改为 MAX_RED
     public static Color handleTooBright(Color mc){
-	while( ( mc ).getRed() > 0xff - MAX_SUB_RED ){
+	while( mc.getRed() > MAX_RED ){
 		mc = mc.darker();
 	}
 	return mc;

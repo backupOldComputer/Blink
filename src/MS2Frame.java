@@ -86,7 +86,9 @@ public class MS2Frame{
 				step[i][j] = 0;//选区外为0，选区内为step值
 				continue;
 			}
-			step[i][j] = (0xff - handleTooBright(m,x,y)) /HALF_HDP; 
+			Color co=handleTooBright(new Color(m.getRGB(x,y),true));
+			m.setRGB(x, y, co.getRGB());
+			step[i][j] = (0xff - co.getRed()) /HALF_HDP; 
 		}
 	}
 	//循环写入
@@ -105,13 +107,12 @@ public class MS2Frame{
 	}
 	writeFrames(frames); //REPEAT次一重循环写入帧
     }
-    //handleTooBright 不再使用 WritableRaster
-    public static int handleTooBright(BufferedImage m, int x, int y){
-	Color mc = null;
-	while( ( mc = new Color(m.getRGB(x,y),true) ).getRed() > 0xff - MAX_SUB_RED ){
-		m.setRGB(x, y, mc.darker().getRGB());
+    //handleTooBright职责单一化：只处理Color
+    public static Color handleTooBright(Color mc){
+	while( ( mc ).getRed() > 0xff - MAX_SUB_RED ){
+		mc = mc.darker();
 	}
-	return mc.getRed();
+	return mc;
     }
     public static void writeFrames(BufferedImage[] frames){
 	for(int t=0;t<REPEAT;++t){

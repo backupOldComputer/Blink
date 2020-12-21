@@ -86,7 +86,7 @@ public class MS2Frame{
 				step[i][j] = 0;//选区外为0，选区内为step值
 				continue;
 			}
-			step[i][j] = handleTooBright(m,x,y); 
+			step[i][j] = handleTooBright(m.getRaster(),x,y); 
 		}
 	}
 	//循环写入
@@ -105,7 +105,15 @@ public class MS2Frame{
 	}
 	writeFrames(frames); //REPEAT次一重循环写入帧
     }
-    public static int handleTooBright(BufferedImage m, int x, int y){
+    public static int handleTooBright(WritableRaster wrm, int x, int y){
+	    int[] iArray = new int[3];
+	    wrm.getPixel(x,y,iArray);
+	    while(iArray[0] > MAX_SUB_RED){
+		    iArray[0] -= 10;
+		    wrm.setPixel(x,y,iArray);	//过于白亮的像素会变成蓝绿色
+	    }
+	    return iArray[0]/HALF_HDP;
+	    /*
 	    int red;//处理过亮的像素
 	    while( ( red = rgba2Red(m.getRGB(x,y)) ) > MAX_SUB_RED){
 		    Color source = new Color(m.getRGB(x,y), true);
@@ -115,6 +123,7 @@ public class MS2Frame{
 	    int stepRed = (255-red)/HALF_HDP;//256做被减数颜色会抖动
 	    if(DEBUG)System.err.print(stepRed+"#");
 	    return 0x10000*stepRed;
+	    */
     }
     public static void writeFrames(BufferedImage[] frames){
 	for(int t=0;t<REPEAT;++t){
@@ -142,7 +151,7 @@ public class MS2Frame{
 		    if(step[i][j]!=0){
 			int[] iArray = new int[4];
 			wrm.getPixel(x,y,iArray);
-			iArray[0] += 20 * (step[i][j] - 1); // addOrSub*step[i][j];
+			iArray[0] += addOrSub*step[i][j];
 			wrm.setPixel( x,y , iArray );
 		    }
 		}

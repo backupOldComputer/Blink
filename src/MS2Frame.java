@@ -37,7 +37,11 @@ public class MS2Frame{
     }
     public static void main(String[] sPaths) throws IOException {
 	if(sPaths == null || sPaths.length == 0){
-		System.err.println("以指示选区的掩码图片的路经集作为参数执行此程序，程序会自动去掉后缀以匹配原图片");
+		System.err.println("🌃🌃🌃以指示选区的掩码图片的路经集作为参数执行此程序，程序会自动去掉后缀以匹配原图片🌃🌃🌃");
+		return;
+	}
+	if(sPaths.length == 1){
+		System.err.println(sPaths[0] + "为空，程序退出");
 		return;
 	}
 	if(MAX_SUB_RED <= 0) throw new AssertionError();

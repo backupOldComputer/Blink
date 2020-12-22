@@ -69,28 +69,27 @@ public class MS2Frame{
 	    }
 	}
 	int[][] step = new int[re+1-rb][ce+1-cb]; // 3重循环算step让选区红亮
-//	BufferedImage stepBI = s.getSubimage(rb,cb,re+1-rb,ce+1-cb);
 	for(int i=0; i < step.length ; ++i){
-		int x = i+rb;
-		for(int j=0; j < step[0].length ; ++j){
-			int y = j+cb;
-//			if( ! isChooes( stepBI, i, j ) ){
-//				step[i][j] = 0;//选区外为0，选区内为step值
-//				continue;
-//			}
-			if( ! isChooes( s,x,y ) ){
-				step[i][j] = 0;//选区外为0，选区内为step值
-				continue;
-			}
-			Color co = new Color(m.getRGB(x,y),true);
-			if(HSB_MODE){
-				
-			}else{
-				co = handleTooBright(co);
-			}
-			m.setRGB(x, y, co.getRGB());
-			step[i][j] = (0xff - co.getRed()) /HALF_HDP; 
-		}
+	    int x = i+rb;
+	    for(int j=0; j < step[0].length ; ++j){
+	    	int y = j+cb;
+	    	if( ! isChooes( s,x,y ) ){
+	    		step[i][j] = 0;//选区外为0，选区内为step值
+	    		continue;
+	    	}
+	    	Color co = new Color(m.getRGB(x,y),true);
+	    	if(HSB_MODE){
+	    		float[] hsbvals = new float[3];
+	    		hsbvals = Color.RGBtoHSB(co.getRed(), co.getGreen()
+					, co.getBlue(), hsbvals); 
+			double diff = 1.0 - hsbvals[COLOR_INDEX];
+	    		step[i][j] = (int)((1000*diff)/HALF_HDP); 
+	    	}else{
+	    		co = handleTooBright(co);
+	    		step[i][j] = (0xff - co.getRed()) /HALF_HDP; 
+	    	}
+	    	m.setRGB(x, y, co.getRGB());
+	    }
 	}
 
 	BufferedImage[] frames = new BufferedImage[HALF_HDP*2];
@@ -119,19 +118,17 @@ public class MS2Frame{
 			int y = j+cb;
 			int[] iArray = new int[4];
 			wrm.getPixel(x,y,iArray);
-		    if(step[i][j]!=0){
 			if(HSB_MODE){
 				float[] hsbvals = new float[3];
 				hsbvals = Color.RGBtoHSB(iArray[0],iArray[1],
 						iArray[2],hsbvals); 
-				hsbvals[COLOR_INDEX] += addOrSub*(step[i][j]/256.0);
+				hsbvals[COLOR_INDEX] += addOrSub*(step[i][j]/1000.0);
 				m.setRGB(x,y, Color.HSBtoRGB(hsbvals[0],
 							hsbvals[1],hsbvals[2]));
 			}else{
 				iArray[COLOR_INDEX] += addOrSub*step[i][j];
 				wrm.setPixel( x,y , iArray );
 			}
-		    }
 		}
 	}
     }

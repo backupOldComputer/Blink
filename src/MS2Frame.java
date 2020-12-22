@@ -116,7 +116,7 @@ public class MS2Frame{
 		int x = i+rb;
 		for(int j=0; j < h ; ++j){
 			int y = j+cb;
-			int[] iArray = new int[4];
+			int[] iArray = new int[3];
 			wrm.getPixel(x,y,iArray);
 			if(HSB_MODE){
 				float[] hsbvals = new float[3];
@@ -146,11 +146,6 @@ public class MS2Frame{
 		}
 	}
     }
-    public static Color handleTooBright(Color mc){
-	while( mc.getRed() > MAX_RED )
-		mc = mc.darker();
-	return mc;
-    }
     public static BufferedImage imClone(BufferedImage from) {
 	BufferedImage to = new BufferedImage(from.getWidth(), from.getHeight(), from.getType());
         to.setData(from.getData());
@@ -159,6 +154,11 @@ public class MS2Frame{
     /** 当前版本只有 s 中的纯白像素才是选区 */
     public static boolean isChooes(BufferedImage s, int x, int y) {
 	return s.getRGB(x,y) == Color.WHITE.getRGB();
+    }
+    public static Color handleTooBright(Color mc){
+	while( mc.getRed() > MAX_RED )
+		mc = mc.darker();
+	return mc;
     }
     /** 此函数已被弃用 */
     public static int rgba2Red(int rgba) {

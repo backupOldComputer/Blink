@@ -5,8 +5,8 @@ import java.awt.image.*;
 import javax.imageio.*;
 
 public class MS2Frame{
-    public static final boolean DEBUG = true;
-    public static final boolean HSB_MODE = true;
+    public static final boolean DEBUG = false;
+    public static final boolean HSB_MODE = false;
     public static final int COLOR_INDEX = HSB_MODE ? 1 : 0;
     public static final int REPEAT = DEBUG ? 2 : 3;
     public static final int HALF_HDP = DEBUG ? 6 : 12;
@@ -14,7 +14,7 @@ public class MS2Frame{
     public static final String FRAME_FORMAT = "PNG";	//需考虑ffmpeg能否解码
     public static final String FILE_SEP = "/";
     
-    private static boolean F_OUT_DEBUG = false;
+    private static boolean F_OUT_DEBUG = true;
     private static int F_OUT_SUFFIX = 0;
     private static String F_OUT_PATH = "F_OUT_DEBUG";
     private static OutputStream sOut() { //TODO:外置类，cmake

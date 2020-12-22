@@ -16,13 +16,14 @@ public class SelectWDivH{
 	}
 */
 	for(int i=0;i<args.length;++i){
+		File output = new File(args[i]+"."+SUFFIX);
+		if( output.exists() ) continue;
 		BufferedImage m = ImageIO.read(new FileInputStream(args[i]));
 		double folder = ( m.getWidth() * (double)BOX ) /m.getHeight();
 		int lenMul = (int)folder;
 		divCount[lenMul] += 1;
-		
 		if( lenMul==TARGET )
-			ImageIO.write(m, SUFFIX, new File(args[i]+"."+SUFFIX));
+			ImageIO.write(m, SUFFIX, output);
 		
 		if(i%100==0) System.out.print("还剩"+(args.length-i)); 
 	}

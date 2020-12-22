@@ -28,8 +28,9 @@ form: src/Form.class
 src/Form.class: src/Form.java src/BlockCipher.java src/FileOperate.java src/Form.java src/Tool.java 
 	javac src/Form.java
 
+#../pWarehouse/M/*/*.JPG
 select_w_div_h: src/SelectWDivH.class
-	java src.SelectWDivH ../pWarehouse/M/*/*.JPG
+	java src.SelectWDivH sample/S/test/*.JPG
 src/SelectWDivH.class: src/SelectWDivH.java
 	javac src/SelectWDivH.java
 

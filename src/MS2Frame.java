@@ -5,7 +5,7 @@ import java.awt.image.*;
 import javax.imageio.*;
 
 public class MS2Frame{
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
     public static final boolean HSB_MODE = true;
     public static final int COLOR_INDEX = HSB_MODE ? 1 : 0;
     public static final int REPEAT = DEBUG ? 2 : 3;
@@ -96,7 +96,7 @@ public class MS2Frame{
 	frames[0] = m;	//首帧使用（可能被darker()处理过的）m 
 /* 三重循环算出半程帧并引用于后半程 ( 以 HALF_HDP==6 , step==30时为例 ) 
  * 帧组下标： 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11（0为原图）
- * 分量深度：30,40,50,60,70,80,90,80,70,60,50,40（100为原图深度）
+ * 分量深度：30,40,50,60,70,80,max,80,70,60,50,40（100为原图深度）
  */
 	for(int k=1; k <= HALF_HDP ;k++){ 
 		BufferedImage mClone = imClone(frames[k-1]);
@@ -123,6 +123,8 @@ public class MS2Frame{
 				hsbvals = Color.RGBtoHSB(iArray[0],iArray[1],
 						iArray[2],hsbvals); 
 				hsbvals[COLOR_INDEX] += addOrSub*(step[i][j]);
+				if(hsbvals[COLOR_INDEX] > 1.0)
+					hsbvals[COLOR_INDEX] = 1.0f;
 				m.setRGB(x,y, Color.HSBtoRGB(hsbvals[0],
 							hsbvals[1],hsbvals[2]));
 			}else{

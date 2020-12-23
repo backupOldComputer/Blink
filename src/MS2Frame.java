@@ -23,7 +23,7 @@ public class MS2Frame{
     public static final boolean DEBUG = true;
     public static final boolean HSB_MODE = true;
     public static final int COLOR_INDEX = HSB_MODE ? 1 : 0;
-    public static final int REPEAT = ( F_OUT_DEBUG ? 1 : ( DEUBG ? 2 : 3 ) );
+    public static final int REPEAT = ( F_OUT_DEBUG ? 1 : ( DEBUG ? 2 : 3 ) );
     public static final int HALF_HDP = DEBUG ? 6 : 12;
     public static final int MAX_RED = 255-144;	//red大于MAX_RED会触发darker()
     public static final String FRAME_FORMAT = "PNG";	//需考虑ffmpeg能否解码
@@ -54,7 +54,7 @@ public class MS2Frame{
 			BufferedImage s = ImageIO.read(sf);
 			BufferedImage m = ImageIO.read(mf);
 			ms2frames(m, s);
-		}catch(FileNotFoundException e){
+		}catch(IOException e){
 			throw new AssertionError();
 		}
 	}
@@ -128,6 +128,7 @@ public class MS2Frame{
 				float[] hsbvals = new float[3];
 				hsbvals = Color.RGBtoHSB(iArray[0],iArray[1],
 						iArray[2],hsbvals); 
+				hsbvals[0] /= 3;
 				hsbvals[COLOR_INDEX] += addOrSub*(step[i][j]);
 				if(hsbvals[COLOR_INDEX] > 1.0)
 					hsbvals[COLOR_INDEX] = 1.0f;

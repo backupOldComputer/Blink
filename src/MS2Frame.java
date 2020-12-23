@@ -74,30 +74,7 @@ public class MS2Frame{
 	   	}
 	    }
 	}
-	double[][] step = new double[re+1-rb][ce+1-cb]; // 3重循环算step
-	for(int i=0; i < step.length ; ++i){
-	    int x = i+rb;
-	    for(int j=0; j < step[0].length ; ++j){
-	    	int y = j+cb;
-	    	if( ! isChooes( s,x,y ) ){
-	    		step[i][j] = 0;//加色模式：选区外为0，选区内为step值
-	    		continue;
-	    	}
-	    	Color co = new Color(m.getRGB(x,y),true);
-	    	if(HSB_MODE){
-	    		float[] hsbvals = new float[3];
-	    		hsbvals = Color.RGBtoHSB(co.getRed(), co.getGreen()
-					, co.getBlue(), hsbvals); 
-			double diff = 1.0 - hsbvals[COLOR_INDEX];
-	    		step[i][j] = ((diff)/HALF_HDP); 
-	    	}else{
-	    		co = handleTooBright(co);
-	    		step[i][j] = (double)(0xff - co.getRed()) / HALF_HDP; 
-	    	}
-	    	m.setRGB(x, y, co.getRGB());
-	    }
-	}
-
+	WritableRaster wrm = m.getRaster();
 	BufferedImage[] frames = new BufferedImage[HALF_HDP*2];
 	frames[0] = m;	//首帧使用（可能被darker()处理过的）m 
 /* 三重循环算出半程帧并引用于后半程 ( 以 HALF_HDP==6 , step==30时为例 ) 
@@ -105,10 +82,27 @@ public class MS2Frame{
  * 分量深度：30,40,50,60,70,80,max,80,70,60,50,40（100为原图深度）
  */
 	for(int k=1; k <= HALF_HDP ;k++){ 
-		BufferedImage mClone = imClone(frames[k-1]);
-		nextFrame(mClone, step, rb, cb, 1);
-		frames[k] = mClone;
-		frames[frames.length-k] = frames[k]; //往返闪烁
+	    frames[k] = imClone(m);
+	    for(int x = rb; x <= re; ++x){
+	    	for(int y = cb; y <= ce; ++y){
+		    if(isChooes(s,x,y)){
+			int[] iArray = new int[3];
+			wrm.getPixel(x,y,iArray);
+			float[] hsbvals = new float[3];
+			hsbvals = Color.RGBtoHSB(iArray[0],iArray[1],
+					iArray[2],hsbvals);
+
+			hsbvals[0] -= k * hsbvals[0] / HALF_HDP;
+			hsbvals[1] += k * (1.0 - hsbvals[1]) / HALF_HDP;
+			if(hsbvals[1] > 1.0f)
+				hsbvals[1] = 1.0f;
+
+			frames[k].setRGB(x,y, Color.HSBtoRGB(hsbvals[0],
+						hsbvals[1],hsbvals[2]));
+		    }
+	    	}
+	    }
+	    frames[frames.length-k] = frames[k]; //往返闪烁
 	}
 	writeFrames(frames); //REPEAT次一重循环写入帧
     }

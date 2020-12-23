@@ -21,11 +21,10 @@ public class MS2Frame{
     }
 
     public static final boolean DEBUG = true;
-    public static final boolean HSB_MODE = true;
-    public static final int COLOR_INDEX = HSB_MODE ? 1 : 0;
     public static final int REPEAT = ( F_OUT_DEBUG ? 1 : ( DEBUG ? 2 : 3 ) );
     public static final int HALF_HDP = DEBUG ? 6 : 12;
-    public static final int MAX_RED = 255-144;	//red大于MAX_RED会触发darker()
+    public static final float TARGET_H = 0.0f;	//目标色相
+    public static final float TARGET_S = 1.0f;	//目标饱和度
     public static final String FRAME_FORMAT = "PNG";	//需考虑ffmpeg能否解码
     public static final String FILE_SEP = "/";
     
@@ -44,7 +43,6 @@ public class MS2Frame{
 		System.err.println(sPaths[0] + "为空，程序退出");
 		return;
 	}
-	if( ! HSB_MODE && MAX_RED <= 0 ) throw new AssertionError();
 	for(String sp : sPaths){
 		File mf = new File(pathS2M(sp));
 		File sf = new File(sp);
@@ -91,12 +89,7 @@ public class MS2Frame{
 			float[] hsbvals = new float[3];
 			hsbvals = Color.RGBtoHSB(iArray[0],iArray[1],
 					iArray[2],hsbvals);
-
-			hsbvals[0] -= k * hsbvals[0] / HALF_HDP;
-			hsbvals[1] += k * (1.0 - hsbvals[1]) / HALF_HDP;
-			if(hsbvals[1] > 1.0f)
-				hsbvals[1] = 1.0f;
-
+			computeHSB(hsbvals, k);
 			frames[k].setRGB(x,y, Color.HSBtoRGB(hsbvals[0],
 						hsbvals[1],hsbvals[2]));
 		    }
@@ -106,34 +99,11 @@ public class MS2Frame{
 	}
 	writeFrames(frames); //REPEAT次一重循环写入帧
     }
-    /** 此方法会修改m */
-    public static void nextFrame(BufferedImage m, final double[][] step, int rb, int cb, final int addOrSub){
-	WritableRaster wrm = m.getRaster();
-	int h = step[0].length;
-	for(int i=0; i < step.length ; ++i){
-		if( step[i].length != h )	//断言不是锯齿数组
-			throw new AssertionError();
-		int x = i+rb;
-		for(int j=0; j < h ; ++j){
-			int y = j+cb;
-			int[] iArray = new int[3];
-			wrm.getPixel(x,y,iArray);
-			if(HSB_MODE){
-				float[] hsbvals = new float[3];
-				hsbvals = Color.RGBtoHSB(iArray[0],iArray[1],
-						iArray[2],hsbvals); 
-				hsbvals[0] /= 3;
-				hsbvals[COLOR_INDEX] += addOrSub*(step[i][j]);
-				if(hsbvals[COLOR_INDEX] > 1.0)
-					hsbvals[COLOR_INDEX] = 1.0f;
-				m.setRGB(x,y, Color.HSBtoRGB(hsbvals[0],
-							hsbvals[1],hsbvals[2]));
-			}else{
-				iArray[COLOR_INDEX] += (int)addOrSub*step[i][j];
-				wrm.setPixel( x,y , iArray );
-			}
-		}
-	}
+    public static void computeHSB(float[] hsbvals, int k){
+    	hsbvals[0] -= k * (hsbvals[0] - TARGET_H) / HALF_HDP;
+    	hsbvals[1] += k * (TARGET_S - hsbvals[1]) / HALF_HDP;
+    	if(hsbvals[1] > TARGET_S)
+		    hsbvals[1] = TARGET_S;
     }
     public static void writeFrames(BufferedImage[] frames){
 	try{
@@ -153,10 +123,5 @@ public class MS2Frame{
     /** 当前版本只有 s 中的纯白像素才是选区 */
     public static boolean isChooes(BufferedImage s, int x, int y) {
 	return s.getRGB(x,y) == Color.WHITE.getRGB();
-    }
-    public static Color handleTooBright(Color mc){
-	while( mc.getRed() > MAX_RED )
-		mc = mc.darker();
-	return mc;
     }
 }

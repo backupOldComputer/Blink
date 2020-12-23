@@ -102,8 +102,7 @@ public class MS2Frame{
     public static void computeHSB(float[] hsbvals, int k){
     	hsbvals[0] -= k * (hsbvals[0] - TARGET_H) / HALF_HDP;
     	hsbvals[1] += k * (TARGET_S - hsbvals[1]) / HALF_HDP;
-    	if(hsbvals[1] > TARGET_S)
-		    hsbvals[1] = TARGET_S;
+	hsbvals[2] = 1.0 - hsbvals[1];
     }
     public static void writeFrames(BufferedImage[] frames){
 	try{

@@ -16,8 +16,8 @@ sample: src/MS2Frame.class
 c_video: src/MS2Frame.class 
 	java src.MS2Frame ../pWarehouse/S/*/*.bmp | '/usr/local/ffmpeg/bin/ffmpeg' -r 8 -i pipe:0 -y out.mp4
 	
-r_video: src/MS2Frame.class 
-	java src.MS2Frame ../pWarehouse/S/*/*.png | '/usr/local/ffmpeg/bin/ffmpeg' -r 8 -i pipe:0 -y out.mp4
+png: src/MS2Frame.class 
+	java src.MS2Frame picture/*/*.png | '/usr/local/ffmpeg/bin/ffmpeg' -r 10 -i pipe:0 -y out.mp4
 	
 src/MS2Frame.class: src/MS2Frame.java
 	javac src/MS2Frame.java

@@ -5,18 +5,9 @@ import java.awt.image.*;
 import javax.imageio.*;
 
 public class MS2Frame{
-    public static final boolean DEBUG = false;
-    public static final boolean HSB_MODE = true;
-    public static final int COLOR_INDEX = HSB_MODE ? 1 : 0;
-    public static final int REPEAT = DEBUG ? 2 : 3;
-    public static final int HALF_HDP = DEBUG ? 6 : 12;
-    public static final int MAX_RED = 255-144;	//red大于MAX_RED会触发darker()
-    public static final String FRAME_FORMAT = "PNG";	//需考虑ffmpeg能否解码
-    public static final String FILE_SEP = "/";
-    
-    private static boolean F_OUT_DEBUG = false;
+    private static final boolean F_OUT_DEBUG = false;
+    private static final String F_OUT_PATH = "F_OUT_DEBUG";
     private static int F_OUT_SUFFIX = 0;
-    private static String F_OUT_PATH = "F_OUT_DEBUG";
     private static OutputStream sOut() { //TODO:外置类，cmake
 	if( ! F_OUT_DEBUG) return System.out;
 	++F_OUT_SUFFIX; 
@@ -28,32 +19,47 @@ public class MS2Frame{
 		throw new AssertionError();
 	}
     }
+
+    public static final boolean DEBUG = true;
+    public static final boolean HSB_MODE = true;
+    public static final int COLOR_INDEX = HSB_MODE ? 1 : 0;
+    public static final int REPEAT = ( F_OUT_DEBUG ? 1 : ( DEUBG ? 2 : 3 ) );
+    public static final int HALF_HDP = DEBUG ? 6 : 12;
+    public static final int MAX_RED = 255-144;	//red大于MAX_RED会触发darker()
+    public static final String FRAME_FORMAT = "PNG";	//需考虑ffmpeg能否解码
+    public static final String FILE_SEP = "/";
+    
     public static String pathS2M(String path) {
 	String result = path.substring(0, path.lastIndexOf('.') );//去掉后缀
 	String prefix = "pWarehouse"+FILE_SEP;
 	// .replaceFirst(prefix+"S", prefix+"M");
 	return result;
     }
-    public static void main(String[] sPaths) throws IOException {
+    public static void main(String[] sPaths) {
 	if(sPaths == null || sPaths.length == 0){
-		System.err.println("🌃🌃🌃以指示选区的掩码图片的路经集作为参数执行此程序，程序会自动去掉后缀以匹配原图片🌃🌃🌃");
+		System.err.println("需要参数：指示选区的掩码图片的路径集");
 		return;
 	}
 	if(sPaths.length == 1 && sPaths[0].indexOf('*') != -1){
 		System.err.println(sPaths[0] + "为空，程序退出");
 		return;
 	}
-	if(MAX_RED <= 0) throw new AssertionError();
+	if( ! HSB_MODE && MAX_RED <= 0 ) throw new AssertionError();
 	for(String sp : sPaths){
 		File mf = new File(pathS2M(sp));
-		if( ! mf.exists() || mf.isDirectory()) 
+		File sf = new File(sp);
+		if( ( ! mf.exists() ) || mf.isDirectory() || ( ! sf.isFile()) ) 
 			throw new AssertionError();
-		BufferedImage s = ImageIO.read(new File(sp));
-		BufferedImage m = ImageIO.read(mf);
-		pictureToFrames(m, s);
+		try{
+			BufferedImage s = ImageIO.read(sf);
+			BufferedImage m = ImageIO.read(mf);
+			ms2frames(m, s);
+		}catch(FileNotFoundException e){
+			throw new AssertionError();
+		}
 	}
     }
-    public static void pictureToFrames(BufferedImage m, BufferedImage s) throws IOException {
+    public static void ms2frames(BufferedImage m, BufferedImage s) {
 	int r = s.getWidth();
 	int c = s.getHeight();
 	if( r > m.getWidth() || c > m.getHeight() ) throw new AssertionError();
@@ -135,17 +141,13 @@ public class MS2Frame{
 	}
     }
     public static void writeFrames(BufferedImage[] frames){
-	for(int t=0;t<REPEAT;++t){
-		for(int f=0;f<frames.length;++f)
-			try{
+	try{
+		for(int t=0;t<REPEAT;++t){
+			for(int f=0;f<frames.length;++f)
 				ImageIO.write(frames[f], FRAME_FORMAT, sOut());
-			}catch(IOException ex){
-				throw new AssertionError();
-			}
-		if(F_OUT_DEBUG) {
-			System.err.println("文件DEBUG状态下只需写盘一轮"); 
-			break;
 		}
+	}catch(IOException ex){
+		throw new AssertionError();
 	}
     }
     public static BufferedImage imClone(BufferedImage from) {
@@ -161,9 +163,5 @@ public class MS2Frame{
 	while( mc.getRed() > MAX_RED )
 		mc = mc.darker();
 	return mc;
-    }
-    /** 此函数已被弃用 */
-    public static int rgba2Red(int rgba) {
-	return ( rgba/0x10000 ) & 0xff;
     }
 }

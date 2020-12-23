@@ -13,8 +13,8 @@ test: src/MS2Frame.class
 sample: src/MS2Frame.class
 	java src.MS2Frame sample/S/SampleInput/*.png | '/usr/local/ffmpeg/bin/ffmpeg' -r 8 -i pipe:0 -y -b:v 128K out.mp4
 
-c_video: src/MS2Frame.class 
-	java src.MS2Frame ../pWarehouse/S/*/*.bmp | '/usr/local/ffmpeg/bin/ffmpeg' -r 8 -i pipe:0 -y out.mp4
+c_Video: src/MS2Frame.class 
+	java src.MS2Frame ../pWarehouse/S/*/*.bmp | '/usr/local/ffmpeg/bin/ffmpeg' -r 10 -i pipe:0 -y out.mp4
 	
 png: src/MS2Frame.class 
 	java src.MS2Frame picture/*/*.png | '/usr/local/ffmpeg/bin/ffmpeg' -r 10 -i pipe:0 -y out.mp4
@@ -37,6 +37,8 @@ src/SelectWDivH.class: src/SelectWDivH.java
 
 clean:
 	rm src/*.class
+shred_picture:
+	shred -v picture/*/*
 shred_video:
 	shred -v video/*.mp4
 shred_f_out_debug:

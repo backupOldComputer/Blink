@@ -23,9 +23,9 @@ public class MS2Frame{
     public static final boolean DEBUG = true;
     public static final int REPEAT = ( F_OUT_DEBUG ? 1 : ( DEBUG ? 2 : 3 ) );
     public static final int HALF_HDP = DEBUG ? 6 : 12;
-    public static final float TARGET_MUL_H = 0.5f;	//目标色相乘数
-    public static final float TARGET_S = 1.0f;	//饱和度
-    public static final float TARGET_MUL_B = 0.5f;	//亮度
+    public static final double TARGET_MUL_H = 0.5;	//色相减量乘数
+    public static final float TARGET_S = 1.0f;	//目标饱和度
+    public static final double TARGET_MUL_B = 0.5;	//亮度增量乘数
     public static final String FRAME_FORMAT = "PNG";	//需考虑ffmpeg能否解码
     public static final String FILE_SEP = "/";
     
@@ -106,8 +106,8 @@ public class MS2Frame{
 	hsbvals[2] = divideLine(hsbvals[2], (1-hsbvals[2])*TARGET_MUL_B+hsbvals[2], k);
 	hsbvals[1] = (hsbvals[1] < 1.0f) ? hsbvals[1] : 1.0f;
     }
-    public static float divideLine(float from, float to, int select){
-	    return from + select*(to-from)/HALF_HDP;
+    public static float divideLine(double from, double to, int select){
+	    return (float) (from + select*(to-from)/HALF_HDP);
     }
     public static void writeFrames(BufferedImage[] frames){
 	try{

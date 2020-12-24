@@ -20,7 +20,7 @@ public class MS2Frame{
 	}
     }
 
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
     public static final int REPEAT = ( F_OUT_DEBUG ? 1 : ( DEBUG ? 2 : 3 ) );
     public static final int HALF_HDP = DEBUG ? 6 : 12;
     public static final double TARGET_MUL_H = 0.5;	//色相减量乘数
@@ -84,7 +84,8 @@ public class MS2Frame{
 	    frames[k] = imClone(m);
 	    for(int x = rb; x <= re; ++x){
 	    	for(int y = cb; y <= ce; ++y){
-		    if(isChooes(s,x,y)){
+			if( ! isChooes(s,x,y))
+				continue;
 			int[] iArray = new int[3];
 			wrm.getPixel(x,y,iArray);
 			float[] hsbvals = new float[3];
@@ -93,7 +94,6 @@ public class MS2Frame{
 			computeHSB(hsbvals, k);
 			frames[k].setRGB(x,y, Color.HSBtoRGB(hsbvals[0],
 						hsbvals[1],hsbvals[2]));
-		    }
 	    	}
 	    }
 	    frames[frames.length-k] = frames[k]; //往返闪烁
@@ -103,18 +103,17 @@ public class MS2Frame{
     public static void computeHSB(float[] hsbvals, int k){
     	hsbvals[0] = divideLine(hsbvals[0], hsbvals[0] * TARGET_MUL_H, k);
     	hsbvals[1] = divideLine(hsbvals[1], TARGET_S, k);
-	hsbvals[2] = divideLine(hsbvals[2], (1-hsbvals[2])*TARGET_MUL_B+hsbvals[2], k);
-	hsbvals[1] = (hsbvals[1] < 1.0f) ? hsbvals[1] : 1.0f;
+	hsbvals[2] = divideLine(hsbvals[2], hsbvals[2]+(1-hsbvals[2])*TARGET_MUL_B, k);
+//	hsbvals[1] = (hsbvals[1] < 1.0f) ? hsbvals[1] : 1.0f;//如果饱和度溢出
     }
     public static float divideLine(double from, double to, int select){
 	    return (float) (from + select*(to-from)/HALF_HDP);
     }
     public static void writeFrames(BufferedImage[] frames){
 	try{
-		for(int t=0;t<REPEAT;++t){
+		for(int t=0;t<REPEAT;++t)
 			for(int f=0;f<frames.length;++f)
 				ImageIO.write(frames[f], FRAME_FORMAT, sOut());
-		}
 	}catch(IOException ex){
 		throw new AssertionError();
 	}

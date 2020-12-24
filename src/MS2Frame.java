@@ -23,7 +23,7 @@ public class MS2Frame{
     public static final boolean DEBUG = true;
     public static final int REPEAT = ( F_OUT_DEBUG ? 1 : ( DEBUG ? 2 : 3 ) );
     public static final int HALF_HDP = DEBUG ? 6 : 12;
-    public static final float TARGET_H = 9999;	//目标色相
+    public static final float TARGET_MUL_H = 0.5f;	//目标色相乘数
     public static final float TARGET_S = 1.0f;	//目标饱和度
     public static final float TARGET_B = 1.0f;	//目标亮度
     public static final String FRAME_FORMAT = "PNG";	//需考虑ffmpeg能否解码
@@ -101,7 +101,7 @@ public class MS2Frame{
 	writeFrames(frames); //REPEAT次一重循环写入帧
     }
     public static void computeHSB(float[] hsbvals, int k){
-//    	hsbvals[0] -= k * ( hsbvals[0] - hsbvals[0] / TARGET_H ) / HALF_HDP;
+    	hsbvals[0] += k * (hsbvals[0] * TARGET_MUL_H - hsbvals[0] ) / HALF_HDP;
     	hsbvals[1] += k * (TARGET_S - hsbvals[1]) / HALF_HDP;
 	hsbvals[2] += k * (TARGET_B - hsbvals[2]) / HALF_HDP;
     }

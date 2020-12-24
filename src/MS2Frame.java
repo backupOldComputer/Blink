@@ -101,9 +101,9 @@ public class MS2Frame{
 	writeFrames(frames); //REPEAT次一重循环写入帧
     }
     public static void computeHSB(float[] hsbvals, int k){
-    	hsbvals[0] += k * (hsbvals[0] * TARGET_MUL_H - hsbvals[0]) / HALF_HDP;
-    	hsbvals[1] += k * (TARGET_S - hsbvals[1]) / HALF_HDP;
-	hsbvals[2] = divideLine(hsbvals[2], 1.0f, k);
+    	hsbvals[0] = divideLine(hsbvals[0], hsbvals[0] * TARGET_MUL_H, k);
+    	hsbvals[1] = divideLine(hsbvals[1], TARGET_S, k);
+	hsbvals[2] = divideLine(hsbvals[2], (1-hsbvals[2])*TARGET_MUL_B+hsbvals[2], k);
 	hsbvals[1] = (hsbvals[1] < 1.0f) ? hsbvals[1] : 1.0f;
     }
     public static float divideLine(float from, float to, int select){

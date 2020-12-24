@@ -4,7 +4,7 @@ import java.awt.image.*;
 import javax.imageio.*;
 
 public class SelectWDivH{
-    public static final String SUFFIX = "png";
+    public static final String SUFFIX = "choosen";
     public static final int TARGET = 150 ; // 66 ; // 对大部分相机而言，纵向图宽高比约为0.66;
     public static final int BOX = 100;
     private static int[] divCount = new int[BOX*3+1];

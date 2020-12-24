@@ -44,5 +44,5 @@ shred_picture:
 	shred -v -u picture/*/*
 VSS: png_video
 	shred -v -u picture/*/*
-	mv out.mp4 video/VSS.mp4
+	mv --backup=numbered out.mp4 video/VSS.mp4
 	shutdown

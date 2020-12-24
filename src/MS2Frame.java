@@ -19,8 +19,11 @@ public class MS2Frame{
 		throw new AssertionError();
 	}
     }
+    private static PrintStream sErr() {
+	    return System.err;
+    }
 
-    public static final boolean DEBUG = false;
+    public static final boolean DEBUG = true;
     public static final int REPEAT = ( F_OUT_DEBUG ? 1 : ( DEBUG ? 2 : 3 ) );
     public static final int HALF_HDP = DEBUG ? 6 : 12;
     public static final double TARGET_MUL_H = 0.5;	//色相减量乘数
@@ -44,12 +47,20 @@ public class MS2Frame{
 		System.err.println(sPaths[0] + "为空，程序退出");
 		return;
 	}
-	for(String sp : sPaths){
-		File mf = new File(pathS2M(sp));
+	/*
+	java.util.Scanner scan = new java.util.Scanner(System.in);
+	String password = scan.nextline();
+	SecretKey sks = new SecretKey(password);
+	*/
+	for(int k=0; k<sPaths.length; ++k){
+		sErr().println("共"+sPaths.length+"张，正在处理第"+(1+k)+"张");
+		String sp = sPaths[k];
+		String mp = pathS2M(sp);
 		File sf = new File(sp);
+		File mf = new File(mp);
 		if( ( ! mf.exists() ) || mf.isDirectory() || ( ! sf.isFile()) ) 
 			throw new AssertionError();
-		try{
+		try{	//TODO: Fileperate.getInputStream(f, sks);
 			BufferedImage s = ImageIO.read(sf);
 			BufferedImage m = ImageIO.read(mf);
 			ms2frames(m, s);

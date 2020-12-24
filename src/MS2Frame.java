@@ -24,8 +24,8 @@ public class MS2Frame{
     public static final int REPEAT = ( F_OUT_DEBUG ? 1 : ( DEBUG ? 2 : 3 ) );
     public static final int HALF_HDP = DEBUG ? 6 : 12;
     public static final float TARGET_MUL_H = 0.5f;	//目标色相乘数
-    public static final float TARGET_S = 1.0f;	//目标饱和度
-    public static final float TARGET_B = 1.0f;	//目标亮度
+    public static final float TARGET_S = 1.0f;	//饱和度
+    public static final float TARGET_MUL_B = 0.5f;	//亮度
     public static final String FRAME_FORMAT = "PNG";	//需考虑ffmpeg能否解码
     public static final String FILE_SEP = "/";
     
@@ -101,9 +101,13 @@ public class MS2Frame{
 	writeFrames(frames); //REPEAT次一重循环写入帧
     }
     public static void computeHSB(float[] hsbvals, int k){
-    	hsbvals[0] += k * (hsbvals[0] * TARGET_MUL_H - hsbvals[0] ) / HALF_HDP;
+    	hsbvals[0] += k * (hsbvals[0] * TARGET_MUL_H - hsbvals[0]) / HALF_HDP;
     	hsbvals[1] += k * (TARGET_S - hsbvals[1]) / HALF_HDP;
-	hsbvals[2] += k * (TARGET_B - hsbvals[2]) / HALF_HDP;
+	hsbvals[2] = divideLine(hsbvals[2], 1.0f, k);
+	hsbvals[1] = (hsbvals[1] < 1.0f) ? hsbvals[1] : 1.0f;
+    }
+    public static float divideLine(float from, float to, int select){
+	    return from + select*(to-from)/HALF_HDP;
     }
     public static void writeFrames(BufferedImage[] frames){
 	try{

@@ -26,7 +26,7 @@ public class MS2Frame{
     public static final boolean DEBUG = true;
     public static final int REPEAT = ( F_OUT_DEBUG ? 1 : ( DEBUG ? 2 : 3 ) );
     public static final int HALF_HDP = DEBUG ? 6 : 12;
-    public static final double TARGET_MUL_H = 0.5;	//色相减量乘数
+    public static final float TARGET_H = 0.05f;	//目标色相与0.0f的距离
     public static final float TARGET_S = 1.0f;	//目标饱和度
     public static final double TARGET_MUL_B = 0.5;	//亮度增量乘数
     public static final String FRAME_FORMAT = "PNG";	//需考虑ffmpeg能否解码
@@ -111,10 +111,10 @@ public class MS2Frame{
 	}
 	writeFrames(frames); //REPEAT次一重循环写入帧
     }
-    public static void computeHSB(float[] hsbvals, int k){
-    	hsbvals[0] = divideLine(hsbvals[0], hsbvals[0] * TARGET_MUL_H, k);
-    	hsbvals[1] = divideLine(hsbvals[1], TARGET_S, k);
-	hsbvals[2] = divideLine(hsbvals[2], hsbvals[2]+(1-hsbvals[2])*TARGET_MUL_B, k);
+    public static void computeHSB(float[] hsb, int k){
+    	hsb[0] = divideLine(hsb[0], (hsb[0]<0.5) ? TARGET_H : (1-TARGET_H), k);
+    	hsb[1] = divideLine(hsb[1], TARGET_S, k);
+	hsb[2] = divideLine(hsb[2], hsb[2]+(1-hsb[2])*TARGET_MUL_B, k);
 //	hsbvals[1] = (hsbvals[1] < 1.0f) ? hsbvals[1] : 1.0f;//如果饱和度溢出
     }
     public static float divideLine(double from, double to, int select){

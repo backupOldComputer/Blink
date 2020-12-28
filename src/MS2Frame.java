@@ -23,7 +23,7 @@ public class MS2Frame{
 	    return System.err;
     }
 
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
     public static final int REPEAT = ( F_OUT_DEBUG ? 1 : ( DEBUG ? 2 : 3 ) );
     public static final int HALF_HDP = DEBUG ? 6 : 12;
     public static final float TARGET_H = 0.05f;	//目标色相与0.0f的距离

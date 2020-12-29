@@ -23,7 +23,7 @@ public class MS2Frame{
 	    return System.err;
     }
 
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
     public static final int REPEAT = ( F_OUT_DEBUG ? 1 : ( DEBUG ? 2 : 3 ) );
     public static final int HALF_HDP = DEBUG ? 4 : 8;
     public static final float TARGET_H = 0.05f;	//目标色相与0.0f的距离
@@ -32,7 +32,7 @@ public class MS2Frame{
     public static final String FRAME_FORMAT = "bmp";	//需考虑ffmpeg能否解码
     public static final String FILE_SEP = "/";
     
-    public static void randomSort(File[] array){
+    public static void randomSort(File[] array) {
 	    java.util.Random r = new java.util.Random();
 	    for(int i=0; i < array.length ; ++i){
 		    int t = r.nextInt(array.length);

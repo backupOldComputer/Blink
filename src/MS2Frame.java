@@ -104,22 +104,13 @@ public class MS2Frame{
 	}
 	writeFrames(frames); //REPEAT次一重循环写入帧
     }
-    public static float[] getHSB(BufferedImage m, int x,int y,float[] hsb){
-	WritableRaster wrm = m.getRaster();
-	int[] iArray = new int[3];
-	wrm.getPixel(x,y,iArray);
-	int rgb = m.getRGB(x,y);
-//	return Color.RGBtoHSB(iArray[0],iArray[1],iArray[2],hsb);
-	return Color.RGBtoHSB( (rgb>>>16)&0xff, (rgb>>>8)&0xff, rgb&0xff, hsb);
-    }
     public static void computeHSB(float[] hsb, int k){
     	hsb[0] = divideLine(hsb[0], (hsb[0]<0.5) ? TARGET_H : (1-TARGET_H), k);
     	hsb[1] = divideLine(hsb[1], TARGET_S, k);
-	hsb[2] = divideLine(hsb[2], hsb[2]+(1-hsb[2])*TARGET_MUL_B, k);
-//	hsbvals[1] = (hsbvals[1] < 1.0f) ? hsbvals[1] : 1.0f;//如果饱和度溢出
+	hsb[2] = divideLine(hsb[2], (float)(hsb[2]+(1-hsb[2])*TARGET_MUL_B), k);
     }
-    public static float divideLine(double from, double to, int select){
-	    return (float) (from + select*(to-from)/HALF_HDP);
+    public static float divideLine(float from, float to, int select){
+	    return (from + select*(to-from)/HALF_HDP);
     }
     public static void writeFrames(BufferedImage[] frames){
 	try{
@@ -134,6 +125,10 @@ public class MS2Frame{
 	BufferedImage to = new BufferedImage(from.getWidth(), from.getHeight(), from.getType());
         to.setData(from.getData());
 	return to;
+    }
+    public static void getHSB(BufferedImage m, int x,int y,float[] hsb){
+	int rgb = m.getRGB(x,y);
+	Color.RGBtoHSB( (rgb>>>16)&0xff, (rgb>>>8)&0xff, rgb&0xff, hsb);
     }
     /** 当前版本只有 s 中的纯白像素才是选区 */
     public static boolean isChooes(BufferedImage s, int x, int y) {

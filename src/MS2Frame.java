@@ -32,19 +32,27 @@ public class MS2Frame{
     public static final String FRAME_FORMAT = "bmp";	//需考虑ffmpeg能否解码
     public static final String FILE_SEP = "/";
     
-    public static String pathS2M(String path) {
-	String result = path.substring(0, path.lastIndexOf('.') );//去掉后缀
-	// String prefix = "pWarehouse"+FILE_SEP;
-	// .replaceFirst(prefix+"S", prefix+"M");
-	return result;
+    public static void randomSort(File[] array){
+	    java.util.Random r = new java.util.Random();
+	    for(int i=0; i < array.length ; ++i){
+		    int t = r.nextInt(array.length);
+		    var temp = array[i];
+		    array[i] = array[t];
+		    array[t] = temp;
+	    }
     }
-    public static void main(String[] sPaths) throws IOException {
-	if(sPaths == null || sPaths.length == 0){
+    public static String pathS2M(String path) {
+	String result = path.substring( 0 , path.lastIndexOf('.') );//去掉后缀
+	String prefix = "pWarehouse" + FILE_SEP ;
+	return result.replaceFirst(prefix+"S", prefix+"M");
+    }
+    public static void main(String[] args) throws IOException {
+	if(args == null || args.length == 0){
 		System.err.println("需要参数：指示选区的掩码图片的路径集");
 		return;
 	}
-	if(sPaths.length == 1 && sPaths[0].indexOf('*') != -1){
-		System.err.println(sPaths[0] + "为空，程序退出");
+	if(args.length == 1 && args[0].indexOf('*') != -1){
+		System.err.println(args[0] + "为空，程序退出");
 		return;
 	}
 	/*
@@ -52,21 +60,33 @@ public class MS2Frame{
 	String password = scan.nextline();
 	SecretKey sks = new SecretKey(password);
 	*/
+	File dir;
+	for(int i=0;i<args.length;++i){
+		dir = new File(args[i]);
+		choosen2frame(dir.listFiles());
+	}
+    }
+    public static void choosen2frame(File[] sPaths) throws IOException {
+	randomSort(sPaths);
 	File sf,mf;
 	BufferedImage s,m;
 	for(int k=0; k<sPaths.length; ++k){
 		sErr().println("共"+sPaths.length+"张，正在处理第"+(1+k)+"张");
-		sf = new File(sPaths[k]);
-		mf = new File(pathS2M(sPaths[k]));
-		if( ( ! mf.exists() ) || mf.isDirectory() || ( ! sf.isFile()) ) 
+		sf = sPaths[k];
+		mf = new File(pathS2M(sf.getPath()));
+		if( ! mf.exists() ){
+			sErr().println("没找到："+mf.getPath());
+			continue;
+		}
+		if( mf.isDirectory() || ( ! sf.isFile()) ) 
 			throw new AssertionError();
 		//TODO: Fileperate.getInputStream(f, sks);
 		s = ImageIO.read(sf);
 		m = ImageIO.read(mf);
-		ms2frames(m, s);
+		ms2frame(m, s);
 	}
     }
-    public static void ms2frames(BufferedImage m, BufferedImage s) {
+    public static void ms2frame(BufferedImage m, BufferedImage s) {
 	int r = s.getWidth();
 	int c = s.getHeight();
 	if( r > m.getWidth() || c > m.getHeight() ) throw new AssertionError();

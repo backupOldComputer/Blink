@@ -1,14 +1,14 @@
 all:  test
 
 bmp_video: src/MS2Frame.class 
-	java src.MS2Frame picture/factory/*/*.bmp   | '/usr/local/ffmpeg/bin/ffmpeg' -r 10 -i pipe:0  -vcodec libx264 -pix_fmt yuv420p -acodec aac  -y out.mp4
+	java src.MS2Frame picture/factory/*/*.bmp   | '/usr/local/ffmpeg/bin/ffmpeg' -r 10 -i pipe:0  -vcodec libx264 -pix_fmt yuv420p -acodec aac  -y video/out.mp4
 png_video: src/MS2Frame.class 
-	java src.MS2Frame picture/factory/*/*.png   | '/usr/local/ffmpeg/bin/ffmpeg' -r 10 -i pipe:0  -vcodec libx264 -pix_fmt yuv420p -acodec aac  -y out.mp4
+	java src.MS2Frame picture/factory/*/*.png   | '/usr/local/ffmpeg/bin/ffmpeg' -r 10 -i pipe:0  -vcodec libx264 -pix_fmt yuv420p -acodec aac  -y video/out.mp4
 
 sample: src/MS2Frame.class 
-	java src.MS2Frame picture/SampleInput/*.choosen | '/usr/local/ffmpeg/bin/ffmpeg' -r 10 -i pipe:0 -vcodec libx264 -pix_fmt yuv420p -acodec aac -y out.mp4
+	java src.MS2Frame picture/SampleInput/*.choosen | '/usr/local/ffmpeg/bin/ffmpeg' -r 10 -i pipe:0 -vcodec libx264 -pix_fmt yuv420p -acodec aac -y video/out.mp4
 voice: src/MS2Frame.class
-	java src.MS2Frame picture/SampleInput/*.png | '/usr/local/ffmpeg/bin/ffmpeg' -r 10 -i pipe:0 -acodec aac -i audio/short.mp3 -y -b:v 128K out.mp4
+	java src.MS2Frame picture/SampleInput/*.choosen | '/usr/local/ffmpeg/bin/ffmpeg' -r 10 -i pipe:0 -acodec aac -i audio/short.mp3 -y -b:v 128K video/out.mp4
 
 src/MS2Frame.class: src/MS2Frame.java
 	javac src/MS2Frame.java
@@ -34,6 +34,6 @@ shred_f_out_debug:
 shred_factory:
 	shred -v -u picture/factory/*/*
 VSS: png_video
-	mv --backup=numbered out.mp4 video/VSS.mp4
+	mv --backup=numbered video/out.mp4 video/VSS.mp4
 	shred -v -u picture/factory/*/*
 	shutdown

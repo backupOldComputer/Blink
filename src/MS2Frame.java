@@ -23,7 +23,7 @@ public class MS2Frame{
 	    return System.err;
     }
 
-    public static final boolean DEBUG = false;
+    public static final boolean DEBUG = true;
     public static final int REPEAT = ( F_OUT_DEBUG ? 1 : ( DEBUG ? 2 : 3 ) );
     public static final int HALF_HDP = DEBUG ? 4 : 8;
     public static final float TARGET_H = 0.05f;	//目标色相与0.0f的距离
@@ -34,11 +34,11 @@ public class MS2Frame{
     
     public static String pathS2M(String path) {
 	String result = path.substring(0, path.lastIndexOf('.') );//去掉后缀
-	String prefix = "pWarehouse"+FILE_SEP;
+	// String prefix = "pWarehouse"+FILE_SEP;
 	// .replaceFirst(prefix+"S", prefix+"M");
 	return result;
     }
-    public static void main(String[] sPaths) {
+    public static void main(String[] sPaths) throws IOException {
 	if(sPaths == null || sPaths.length == 0){
 		System.err.println("需要参数：指示选区的掩码图片的路径集");
 		return;
@@ -52,21 +52,18 @@ public class MS2Frame{
 	String password = scan.nextline();
 	SecretKey sks = new SecretKey(password);
 	*/
+	File sf,mf;
+	BufferedImage s,m;
 	for(int k=0; k<sPaths.length; ++k){
 		sErr().println("共"+sPaths.length+"张，正在处理第"+(1+k)+"张");
-		String sp = sPaths[k];
-		String mp = pathS2M(sp);
-		File sf = new File(sp);
-		File mf = new File(mp);
+		sf = new File(sPaths[k]);
+		mf = new File(pathS2M(sPaths[k]));
 		if( ( ! mf.exists() ) || mf.isDirectory() || ( ! sf.isFile()) ) 
 			throw new AssertionError();
-		try{	//TODO: Fileperate.getInputStream(f, sks);
-			BufferedImage s = ImageIO.read(sf);
-			BufferedImage m = ImageIO.read(mf);
-			ms2frames(m, s);
-		}catch(IOException e){
-			throw new AssertionError();
-		}
+		//TODO: Fileperate.getInputStream(f, sks);
+		s = ImageIO.read(sf);
+		m = ImageIO.read(mf);
+		ms2frames(m, s);
 	}
     }
     public static void ms2frames(BufferedImage m, BufferedImage s) {
@@ -84,24 +81,20 @@ public class MS2Frame{
 	   	}
 	    }
 	}
-	WritableRaster wrm = m.getRaster();
 	BufferedImage[] frames = new BufferedImage[HALF_HDP*2];
 	frames[0] = m;	//首帧使用（可能被darker()处理过的）m 
 /* 三重循环算出半程帧并引用于后半程 ( 以 HALF_HDP==6 , step==30时为例 ) 
  * 帧组下标： 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11（0为原图）
  * 分量深度：30,40,50,60,70,80,max,80,70,60,50,40（100为原图深度）
  */
+	float[] hsbvals = new float[3];
 	for(int k=1; k <= HALF_HDP ;k++){ 
 	    frames[k] = imClone(m);
 	    for(int x = rb; x <= re; ++x){
 	    	for(int y = cb; y <= ce; ++y){
 			if( ! isChooes(s,x,y))
 				continue;
-			int[] iArray = new int[3];
-			wrm.getPixel(x,y,iArray);
-			float[] hsbvals = new float[3];
-			hsbvals = Color.RGBtoHSB(iArray[0],iArray[1],
-					iArray[2],hsbvals);
+			getHSB(m, x, y, hsbvals); 
 			computeHSB(hsbvals, k);
 			frames[k].setRGB(x,y, Color.HSBtoRGB(hsbvals[0],
 						hsbvals[1],hsbvals[2]));
@@ -110,6 +103,14 @@ public class MS2Frame{
 	    frames[frames.length-k] = frames[k]; //往返闪烁
 	}
 	writeFrames(frames); //REPEAT次一重循环写入帧
+    }
+    public static float[] getHSB(BufferedImage m, int x,int y,float[] hsb){
+	WritableRaster wrm = m.getRaster();
+	int[] iArray = new int[3];
+	wrm.getPixel(x,y,iArray);
+	int rgb = m.getRGB(x,y);
+//	return Color.RGBtoHSB(iArray[0],iArray[1],iArray[2],hsb);
+	return Color.RGBtoHSB( (rgb>>>16)&0xff, (rgb>>>8)&0xff, rgb&0xff, hsb);
     }
     public static void computeHSB(float[] hsb, int k){
     	hsb[0] = divideLine(hsb[0], (hsb[0]<0.5) ? TARGET_H : (1-TARGET_H), k);

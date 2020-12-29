@@ -25,11 +25,11 @@ public class MS2Frame{
 
     public static final boolean DEBUG = false;
     public static final int REPEAT = ( F_OUT_DEBUG ? 1 : ( DEBUG ? 2 : 3 ) );
-    public static final int HALF_HDP = DEBUG ? 6 : 12;
+    public static final int HALF_HDP = DEBUG ? 4 : 8;
     public static final float TARGET_H = 0.05f;	//目标色相与0.0f的距离
     public static final float TARGET_S = 1.0f;	//目标饱和度
     public static final double TARGET_MUL_B = 0.5;	//亮度增量乘数
-    public static final String FRAME_FORMAT = "PNG";	//需考虑ffmpeg能否解码
+    public static final String FRAME_FORMAT = "bmp";	//需考虑ffmpeg能否解码
     public static final String FILE_SEP = "/";
     
     public static String pathS2M(String path) {

@@ -5,13 +5,15 @@ import java.awt.image.*;
 import javax.imageio.*;
 
 public class MS2Frame{
+    private static final boolean PROF = true;
     private static final boolean F_OUT_DEBUG = false;
     private static final String F_OUT_PATH = "F_OUT_DEBUG";
     private static int F_OUT_SUFFIX = 0;
     private static OutputStream sOut() { //TODO:外置类，cmake
-	if( ! F_OUT_DEBUG) return System.out;
-	++F_OUT_SUFFIX; 
 	try{
+//		if(PROF) return new FileOutputStream("PROP");
+		if( ! F_OUT_DEBUG) return System.out;
+		++F_OUT_SUFFIX; 
 		new File(F_OUT_PATH).mkdir();
 		String name = F_OUT_SUFFIX+"."+FRAME_FORMAT;
 		return new FileOutputStream(F_OUT_PATH + FILE_SEP + name);
@@ -38,7 +40,9 @@ public class MS2Frame{
 	// .replaceFirst(prefix+"S", prefix+"M");
 	return result;
     }
+    private static long millRead = 0;
     public static void main(String[] sPaths) throws IOException {
+	var begin = System.currentTimeMillis();
 	if(sPaths == null || sPaths.length == 0){
 		System.err.println("需要参数：指示选区的掩码图片的路径集");
 		return;
@@ -61,9 +65,20 @@ public class MS2Frame{
 		if( ( ! mf.exists() ) || mf.isDirectory() || ( ! sf.isFile()) ) 
 			throw new AssertionError();
 		//TODO: Fileperate.getInputStream(f, sks);
+		var start = System.currentTimeMillis();
 		s = ImageIO.read(sf);
 		m = ImageIO.read(mf);
+		var stop = System.currentTimeMillis();
+		if(PROF) millRead += (stop-start);
 		ms2frames(m, s);
+	}
+	var end = System.currentTimeMillis();
+	if(PROF) {
+		double millMain = end - begin;
+		sErr().println("main总耗时："+millMain);
+		sErr().println("hsb	："+100*millComputeHSB/millMain+"%");
+		sErr().println("read	："+100*millRead /millMain+"%");
+		sErr().println("write	："+100*millWrite/millMain+"%");
 	}
     }
     public static void ms2frames(BufferedImage m, BufferedImage s) {
@@ -104,21 +119,30 @@ public class MS2Frame{
 	}
 	writeFrames(frames); //REPEAT次一重循环写入帧
     }
+    private static long millComputeHSB = 0;
     public static void computeHSB(float[] hsb, int k){
+	var start = System.currentTimeMillis();
     	hsb[0] = divideLine(hsb[0], (hsb[0]<0.5) ? TARGET_H : (1-TARGET_H), k);
     	hsb[1] = divideLine(hsb[1], TARGET_S, k);
 	hsb[2] = divideLine(hsb[2], (float)(hsb[2]+(1-hsb[2])*TARGET_MUL_B), k);
+	var stop = System.currentTimeMillis();
+	if(PROF) millComputeHSB += (stop-start);
     }
     public static float divideLine(float from, float to, int select){
 	    return (from + select*(to-from)/HALF_HDP);
     }
+    private static long millWrite = 0;
     public static void writeFrames(BufferedImage[] frames){
+	var start = System.currentTimeMillis();
 	try{
 		for(int t=0;t<REPEAT;++t)
 			for(int f=0;f<frames.length;++f)
 				ImageIO.write(frames[f], FRAME_FORMAT, sOut());
 	}catch(IOException ex){
 		throw new AssertionError();
+	}finally{
+		var stop = System.currentTimeMillis();
+		if(PROF) millWrite += (stop-start);
 	}
     }
     public static BufferedImage imClone(BufferedImage from) {

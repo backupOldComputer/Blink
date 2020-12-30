@@ -23,7 +23,7 @@ public class MS2Frame{
 	    return System.err;
     }
 
-    public static final boolean DEBUG = false;
+    public static final boolean DEBUG = true;
     public static final int REPEAT = ( F_OUT_DEBUG ? 1 : ( DEBUG ? 2 : 3 ) );
     public static final int HALF_HDP = DEBUG ? 4 : 8;
     public static final float TARGET_H = 0.05f;	//目标色相与0.0f的距离
@@ -61,8 +61,9 @@ public class MS2Frame{
 	SecretKey sks = new SecretKey(password);
 	*/
 	File dir;
-	for(int i=0;i<args.length;++i){
-		dir = new File(args[i]);
+	for(int k=0;k<args.length;++k){
+		sErr().println("共"+sPaths.length+"个文件夹，正在处理第"+(1+k));
+		dir = new File(args[k]);
 		choosen2frame(dir.listFiles());
 	}
     }
@@ -71,7 +72,6 @@ public class MS2Frame{
 	File sf,mf;
 	BufferedImage s,m;
 	for(int k=0; k<sPaths.length; ++k){
-		sErr().println("共"+sPaths.length+"张，正在处理第"+(1+k)+"张");
 		sf = sPaths[k];
 		mf = new File(pathS2M(sf.getPath()));
 		if( ! mf.exists() ){

@@ -44,7 +44,7 @@ public class MS2Frame{
     public static String pathS2M(String path) {
 	String result = path.substring( 0 , path.lastIndexOf('.') );//去掉后缀
 	int index=FILE_SEP.length() + result.lastIndexOf(FILE_SEP+"S"+FILE_SEP);
-	char[] = result.toCharArray();
+	char[] array = result.toCharArray();
 	array[index] = 'M';
 	return new String(array);
 //	String prefix = "pWarehouse" + FILE_SEP ;
@@ -66,7 +66,7 @@ public class MS2Frame{
 	*/
 	File dir;
 	for(int k=0;k<args.length;++k){
-		sErr().println("共"+sPaths.length+"个文件夹，正在处理第"+(1+k));
+		sErr().println("共"+args.length+"个文件夹，即将进入第"+(1+k));
 		dir = new File(args[k]);
 		choosen2frame(dir.listFiles());
 	}

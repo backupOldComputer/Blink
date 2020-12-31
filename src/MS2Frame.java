@@ -43,8 +43,12 @@ public class MS2Frame{
     }
     public static String pathS2M(String path) {
 	String result = path.substring( 0 , path.lastIndexOf('.') );//去掉后缀
-	String prefix = "pWarehouse" + FILE_SEP ;
-	return result.replaceFirst(prefix+"S", prefix+"M");
+	int index=FILE_SEP.length() + result.lastIndexOf(FILE_SEP+"S"+FILE_SEP);
+	char[] = result.toCharArray();
+	array[index] = 'M';
+	return new String(array);
+//	String prefix = "pWarehouse" + FILE_SEP ;
+//	return result.replaceFirst(prefix+"S", prefix+"M");
     }
     public static void main(String[] args) throws IOException {
 	if(args == null || args.length == 0){

@@ -1,4 +1,8 @@
 
+sample: src/MS2Frame.class 
+	java src.MS2Frame picture/SampleInput/S | ffmpeg -r 1 -i pipe:0 -stream_loop -1 -i audio/扯.mp3 -vcodec libx264 -pix_fmt yuv420p -acodec aac -y video/av.mp4
+
+
 redo: clean video/videoOnly.mp4
 	echo redo
 

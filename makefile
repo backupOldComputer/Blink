@@ -2,13 +2,15 @@ redo: clean video/videoOnly.mp4
 	echo redo
 
 voice: video/videoOnly.mp4
-	ffmpeg -i video/videoOnly.mp4 -stream_loop -1 -i audio/扯.mp3 -y video/av.mp4
+	ffmpeg -i video/videoOnly.mp4 -stream_loop -1 -i audio/扯.mp3 -y "video/`date`.mp4"
 
 video/videoOnly.mp4: src/MS2Frame.class 
 	java src.MS2Frame 'picture/S/TA (54)' | ffmpeg -r `cat config/rNoLine` -i pipe:0 -vcodec libx264 -pix_fmt yuv420p -acodec aac -y video/videoOnly.mp4
 
 together: src/MS2Frame.class
-	java src.MS2Frame 'picture/S/TA (54)' | ffmpeg -r `cat config/rNoLine` -i pipe:0 -stream_loop -1 -i audio/扯.mp3 -vcodec libx264 -pix_fmt yuv420p -acodec aac -y video/av.mp4
+	p="/home/ch/图片/Blink/picture/M/TA (54)"
+	echo $p
+#	java src.MS2Frame $p | ffmpeg -r `cat config/rNoLine` -i pipe:0 -stream_loop -1 -i audio/扯.mp3 -vcodec libx264 -pix_fmt yuv420p -acodec aac -y -ss 0 -t `ls "$p" | wc -l` "video/`date`.mp4"
 
 src/MS2Frame.class: src/MS2Frame.java
 	javac src/MS2Frame.java

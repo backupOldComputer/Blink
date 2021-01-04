@@ -1,5 +1,3 @@
-
-
 redo: clean video/videoOnly.mp4
 	echo redo
 
@@ -7,10 +5,10 @@ voice: video/videoOnly.mp4
 	ffmpeg -i video/videoOnly.mp4 -stream_loop -1 -i audio/扯.mp3 -y video/av.mp4
 
 video/videoOnly.mp4: src/MS2Frame.class 
-	java src.MS2Frame picture/SampleInput/S | ffmpeg -r 8 -i pipe:0 -vcodec libx264 -pix_fmt yuv420p -acodec aac -y video/videoOnly.mp4
-	
-sample: src/MS2Frame.class 
-	java src.MS2Frame picture/SampleInput/S | ffmpeg -r 1 -i pipe:0 -stream_loop -1 -i audio/扯.mp3 -vcodec libx264 -pix_fmt yuv420p -acodec aac -y video/av.mp4
+	java src.MS2Frame 'picture/S/TA (54)' | ffmpeg -r `cat config/rNoLine` -i pipe:0 -vcodec libx264 -pix_fmt yuv420p -acodec aac -y video/videoOnly.mp4
+
+together: src/MS2Frame.class
+	java src.MS2Frame 'picture/S/TA (54)' | ffmpeg -r `cat config/rNoLine` -i pipe:0 -stream_loop -1 -i audio/扯.mp3 -vcodec libx264 -pix_fmt yuv420p -acodec aac -y video/av.mp4
 
 src/MS2Frame.class: src/MS2Frame.java
 	javac src/MS2Frame.java

@@ -67,9 +67,6 @@ public class MS2Frame{
 		dir = new File(args[k]);
 		choosen2frame(dir.listFiles());
 	}
-	System.out.print("q");
-	int end = 1/0;
-	System.exit(0);
     }
     public static void choosen2frame(File[] sPaths) throws IOException {
 	randomSort(sPaths);

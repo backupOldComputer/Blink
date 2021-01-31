@@ -2,7 +2,7 @@ redo: clean video/videoOnly.mp4
 	echo redo
 
 voice: video/videoOnly.mp4
-	ffmpeg -i video/videoOnly.mp4 -stream_loop -1 -i audio/扯.mp3 -y "video/`date`.mp4"
+	ffmpeg -i video/videoOnly.mp4 -stream_loop -1 -i audio/扯.mp3 -t `cat config/t.NoLine` -y "video/`date`.mp4"
 
 video/videoOnly.mp4: src/MS2Frame.class 
 	java src.MS2Frame 'picture/S/TA (36)' | ffmpeg -r `cat config/r.NoLine` -i pipe:0 -vcodec libx264 -pix_fmt yuv420p -acodec aac -y video/videoOnly.mp4

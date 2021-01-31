@@ -5,7 +5,7 @@ voice: video/videoOnly.mp4
 	ffmpeg -i video/videoOnly.mp4 -stream_loop -1 -i audio/扯.mp3 -y "video/`date`.mp4"
 
 video/videoOnly.mp4: src/MS2Frame.class 
-	java src.MS2Frame 'picture/S/TA (54)' | ffmpeg -r `cat config/rNoLine` -i pipe:0 -vcodec libx264 -pix_fmt yuv420p -acodec aac -y video/videoOnly.mp4
+	java src.MS2Frame 'picture/S/TA (36)' | ffmpeg -r `cat config/r.NoLine` -i pipe:0 -vcodec libx264 -pix_fmt yuv420p -acodec aac -y video/videoOnly.mp4
 
 together: src/MS2Frame.class
 	p="/home/ch/图片/Blink/picture/M/TA (54)"

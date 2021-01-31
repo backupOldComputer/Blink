@@ -1,10 +1,14 @@
 package src;
+import java.util.Scanner;
 import java.io.*;
 import java.awt.Color;
 import java.awt.image.*;
 import javax.imageio.*;
 
 public class MS2Frame{
+    public static final String FRAME_FORMAT = "bmp";	//需考虑ffmpeg能否解码
+    public static final String FILE_SEP = "/";
+    
     private static final boolean F_OUT_DEBUG = false;
     private static final String F_OUT_PATH = "F_OUT_DEBUG";
     private static int F_OUT_SUFFIX = 0;
@@ -22,15 +26,22 @@ public class MS2Frame{
     private static PrintStream sErr() {
 	    return System.err;
     }
+    private static int readNoLine(String configName){
+    	try{
+    		String path = "config"+FILE_SEP+configName+".NoLine";
+    		FileInputStream fOut = new FileInputStream(path);
+    		return new Scanner(fOut).nextInt();
+    	}catch(FileNotFoundException ex){
+    		throw new AssertionError();
+    	}
+    }
 
     public static final boolean DEBUG = true;
     public static final int REPEAT = ( F_OUT_DEBUG ? 1 : ( DEBUG ? 2 : 3 ) );
-    public static final int HALF_HDP = 8;
+    public static final int HALF_HDP = readNoLine("r");
     public static final float TARGET_H = 0.05f;	//目标色相与0.0f的距离
     public static final float TARGET_S = 1.0f;	//目标饱和度
     public static final double TARGET_MUL_B = 0.5;	//亮度增量乘数
-    public static final String FRAME_FORMAT = "bmp";	//需考虑ffmpeg能否解码
-    public static final String FILE_SEP = "/";
     
     public static void randomSort(File[] array) {
 	    java.util.Random r = new java.util.Random();

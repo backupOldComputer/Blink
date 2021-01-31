@@ -38,7 +38,7 @@ public class MS2Frame{
 
     public static final boolean DEBUG = true;
     public static final int REPEAT = ( F_OUT_DEBUG ? 1 : ( DEBUG ? 2 : 3 ) );
-    public static final int HALF_HDP = readNoLine("r");
+    public static final int HALF_HDP = 8;
     public static final float TARGET_H = 0.05f;	//目标色相与0.0f的距离
     public static final float TARGET_S = 1.0f;	//目标饱和度
     public static final double TARGET_MUL_B = 0.5;	//亮度增量乘数
@@ -72,17 +72,25 @@ public class MS2Frame{
 	String password = scan.nextline();
 	SecretKey sks = new SecretKey(password);
 	*/
+	
+	int pictureCount = readNoLine("t")*readNoLine("r") / (2*HALF_HDP*REPEAT);
+	
 	File dir;
 	for(int k=0;k<args.length;++k){
-		sErr().println("共"+args.length+"个文件夹，即将进入第"+(1+k));
 		dir = new File(args[k]);
-		choosen2frame(dir.listFiles());
+		int successCount = choosen2frame(dir.listFiles());
+		sErr().println("还剩至少"+pictureCount+"张图片，本轮处理数量："+successCount);
+		sErr().println("当前文件夹："+dir.getPath());
+		pictureCount -= successCount;
+		if(pictureCount<=0)
+			break;
 	}
     }
-    public static void choosen2frame(File[] sPaths) throws IOException {
+    public static int choosen2frame(File[] sPaths) throws IOException {
 	randomSort(sPaths);
 	File sf,mf;
 	BufferedImage s,m;
+	int successCount = 0;
 	for(int k=0; k<sPaths.length; ++k){
 		sf = sPaths[k];
 		mf = new File(pathS2M(sf.getPath()));
@@ -95,8 +103,10 @@ public class MS2Frame{
 		//TODO: Fileperate.getInputStream(f, sks);
 		s = ImageIO.read(sf);
 		m = ImageIO.read(mf);
+		++successCount;
 		ms2frame(m, s);
 	}
+	return successCount;
     }
     public static void ms2frame(BufferedImage m, BufferedImage s) {
 	int r = s.getWidth();

@@ -7,8 +7,13 @@ voice: video/videoOnly.mp4
 video/videoOnly.mp4: src/MS2Frame.class 
 	java src.MS2Frame picture/S/* | ffmpeg -r `cat config/r.NoLine` -i pipe:0 -vcodec libx264 -pix_fmt yuv420p -acodec aac -y video/videoOnly.mp4
 
-together: src/MS2Frame.class
-	java src.MS2Frame picture/S/* | ffmpeg -r `cat config/r.NoLine` -i pipe:0 -stream_loop -1 -i audio/张力.mp3 -vcodec libx264 -pix_fmt yuv420p -acodec aac -y -ss 0 -t `cat config/t.NoLine` "video/`date`.mp4"
+test: src/MS2Frame.class
+	echo 3 > config/t.NoLine
+	java src.MS2Frame picture/S/* | ffmpeg -r `cat config/r.NoLine` -i pipe:0 -stream_loop -1 -i audio/扯.mp3 -vcodec libx264 -pix_fmt yuv420p -acodec aac -y -ss 0 -t `cat config/t.NoLine` "video/`date`.mp4"
+
+factor: src/MS2Frame.class
+	echo 600 > config/t.NoLine
+	java src.MS2Frame picture/S/* | ffmpeg -r `cat config/r.NoLine` -i pipe:0 -stream_loop -1 -i audio/扯.mp3 -vcodec libx264 -pix_fmt yuv420p -acodec aac -y -ss 0 -t `cat config/t.NoLine` "video/`date`.mp4"
 
 src/MS2Frame.class: src/MS2Frame.java
 	javac src/MS2Frame.java

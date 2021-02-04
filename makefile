@@ -32,8 +32,9 @@ src/SelectWDivH.class: src/SelectWDivH.java
 
 clean:
 	rm src/*.class
-	shred -u --iterations=1 video/videoOnly.mp4
+	shred -v -u --iterations=1 video/*
+	shred -v -u --iterations=1 picture/*/*/*.*
+	shred -v -u --iterations=1 picture/*/*.*
+	shred -v -u --iterations=1 picture/*.*
 shred_f_out_debug:
 	shred -v -u F_OUT_DEBUG/*.*
-shred_factory:
-#	shred -v -u picture/factory/*/*
